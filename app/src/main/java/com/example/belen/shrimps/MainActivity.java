@@ -36,6 +36,7 @@ import java.io.OutputStream;
 //import java.net.InetAddress;
 //import java.net.UnknownHostException;
 import java.net.InetAddress;
+import java.util.ArrayList;
 import java.util.Arrays;
 
 import org.apache.commons.net.PrintCommandListener;
@@ -60,6 +61,8 @@ public class MainActivity extends Activity {
     String server, username, password;
     String working_directory="/";
     int port;
+    ArrayList<String> filenames= new ArrayList<String>();
+
 
     public void connectToFTP(){
         port = 21;
@@ -102,24 +105,6 @@ public class MainActivity extends Activity {
 
     }
 
-    /* Checks if external storage is available for read and write */
-    public boolean isExternalStorageWritable() {
-        String state = Environment.getExternalStorageState();
-        if (Environment.MEDIA_MOUNTED.equals(state)) {
-            return true;
-        }
-        return false;
-    }
-    public File getPrivateAlbumStorageDir(Context context, String albumName) {
-        String LOG_TAG = "File error";
-        // Get the directory for the app's private pictures directory.
-        File file = new File(context.getExternalFilesDir(
-                Environment.DIRECTORY_PICTURES), albumName);
-        if (!file.mkdirs()) {
-            Log.e(LOG_TAG, "Directory not created");
-        }
-        return file;
-    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -128,7 +113,10 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         addListenerOnButton();
-
+        ArrayAdapter<String> itemsAdapter =
+                new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, filenames);
+        ListView listView = (ListView) findViewById(R.id.customListView);
+        listView.setAdapter(itemsAdapter);
 
     }
 
@@ -143,6 +131,7 @@ public class MainActivity extends Activity {
             public void onClick(View arg0) {
                 //image.setImageResource(R.drawable.comensales);
                 connectToFTP();
+
                 if(ftp.isConnected()){
                     Toast.makeText(getApplicationContext(),
                             "ftp connected",
@@ -151,20 +140,23 @@ public class MainActivity extends Activity {
                         FTPFile[] files = ftp.listFiles();
                         for (FTPFile file: files){
                             String filename = file.getName();
-                            ImageView thumbnail= null;
-                            Bitmap bitmap = null;
-                            //reading the image file
-                            InputStream input = ftp.retrieveFileStream(filename);
-                            //try with input ???
-                            bitmap = BitmapFactory.decodeStream(new BufferedInputStream(input));
-                            thumbnail.setImageBitmap(bitmap);
-                            input.close();
+                            filenames.add(filename);
+
+//                            ImageView thumbnail= null;
+//                            Bitmap bitmap = null;
+//                            //reading the image file
+//                            InputStream input = ftp.retrieveFileStream(filename);
+//                            //try with input ???
+//                            bitmap = BitmapFactory.decodeStream(new BufferedInputStream(input));
+//                            thumbnail.setImageBitmap(bitmap);
+                            //input.close();
                             if(!ftp.completePendingCommand()) {
                                 ftp.logout();
                                 ftp.disconnect();
                                 Log.e("FILE_ERROR","File transfer failed.");
                             }
                         }
+
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
