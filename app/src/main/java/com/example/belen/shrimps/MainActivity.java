@@ -1,6 +1,8 @@
 package com.example.belen.shrimps;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Environment;
 import android.os.StrictMode;
 import android.support.v7.app.AppCompatActivity;
@@ -11,6 +13,7 @@ import android.content.Intent;
 import android.widget.*;
 
 
+import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import android.support.v4.content.ContextCompat;
@@ -89,7 +92,7 @@ public class MainActivity extends Activity {
              */
             this.ftp.setFileType(FTP.BINARY_FILE_TYPE);
             this.ftp.enterLocalPassiveMode();
-            this.ftp.changeWorkingDirectory(working_directory);
+            //this.ftp.changeWorkingDirectory(working_directory);
         }
         catch (IOException e)
         {
@@ -144,7 +147,27 @@ public class MainActivity extends Activity {
                     Toast.makeText(getApplicationContext(),
                             "ftp connected",
                             Toast.LENGTH_LONG).show();
-
+                    try {
+                        FTPFile[] files = ftp.listFiles();
+                        for (FTPFile file: files){
+                            String filename = file.getName();
+                            ImageView thumbnail= null;
+                            Bitmap bitmap = null;
+                            //reading the image file
+                            InputStream input = ftp.retrieveFileStream(filename);
+                            //try with input ???
+                            bitmap = BitmapFactory.decodeStream(new BufferedInputStream(input));
+                            thumbnail.setImageBitmap(bitmap);
+                            input.close();
+                            if(!ftp.completePendingCommand()) {
+                                ftp.logout();
+                                ftp.disconnect();
+                                Log.e("FILE_ERROR","File transfer failed.");
+                            }
+                        }
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                 }
                 else{
                     Toast.makeText(getApplicationContext(),
