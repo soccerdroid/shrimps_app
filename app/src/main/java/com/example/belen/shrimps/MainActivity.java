@@ -57,16 +57,21 @@ public class MainActivity extends Activity {
 
     Button button;
     ImageView image;
-    FTPClient ftp;
-    String server, username, password;
+    public static FTPClient ftp;
+    public static String server;
+    public static String username;
+    public static String password;
     String working_directory="/";
-    int port;
-    ArrayList<String> filenames= new ArrayList<String>();
-
+    public static int port;
+    ArrayList<Thumbnail> thumbnails;
+    ArrayAdapter<Thumbnail> itemsAdapter;
+    ListView listView;
 
     public void connectToFTP(){
         port = 21;
-        server = "10.10.1.116";
+        //server = "10.10.1.118";
+        //server = "192.168.0.15";
+        server = "192.168.20.1";
         username = "usuario";
         password = "0000";
         this.ftp = new FTPClient();
@@ -112,36 +117,39 @@ public class MainActivity extends Activity {
         StrictMode.setThreadPolicy(policy);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        //image = (ImageView) findViewById(R.id.imageView1);
+        button = (Button) findViewById(R.id.btnChangeImage);
         addListenerOnButton();
-        ArrayAdapter<String> itemsAdapter =
-                new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, filenames);
-        ListView listView = (ListView) findViewById(R.id.customListView);
-        listView.setAdapter(itemsAdapter);
+            this.thumbnails= new ArrayList<>();
+        this.itemsAdapter = new ThumbnailAdapter(this, 0, thumbnails);
+        this.listView = (ListView) findViewById(R.id.customListView);
+        this.listView.setAdapter(itemsAdapter);
 
     }
 
+
     public void addListenerOnButton() {
-
-        image = (ImageView) findViewById(R.id.imageView1);
-        button = (Button) findViewById(R.id.btnChangeImage);
         button.setOnClickListener(new OnClickListener() {
-
-
             @Override
             public void onClick(View arg0) {
-                //image.setImageResource(R.drawable.comensales);
                 connectToFTP();
-
+                thumbnails.clear();
                 if(ftp.isConnected()){
                     Toast.makeText(getApplicationContext(),
                             "ftp connected",
                             Toast.LENGTH_LONG).show();
                     try {
+                        int it = 1;
                         FTPFile[] files = ftp.listFiles();
-                        for (FTPFile file: files){
-                            String filename = file.getName();
-                            filenames.add(filename);
-
+                        System.out.println("NUMERO DE ELEMENTOS: " + files.length);
+                        for(int i=0; i<files.length; i++){
+                        //for (FTPFile file: files){
+                            String filename = files[i].getName();
+                            Thumbnail thumbnail = new Thumbnail(filename);
+                            thumbnails.add(thumbnail);
+                            System.out.println("FILENAME: " + filename);
+                            System.out.println("Iteracion: " + it);
+                            it+=1;
 //                            ImageView thumbnail= null;
 //                            Bitmap bitmap = null;
 //                            //reading the image file
@@ -150,12 +158,17 @@ public class MainActivity extends Activity {
 //                            bitmap = BitmapFactory.decodeStream(new BufferedInputStream(input));
 //                            thumbnail.setImageBitmap(bitmap);
                             //input.close();
-                            if(!ftp.completePendingCommand()) {
+/**                            if(!ftp.completePendingCommand()) {
+                                System.out.println("ME DESCONECTE!!!");
                                 ftp.logout();
                                 ftp.disconnect();
+                                System.out.println();
                                 Log.e("FILE_ERROR","File transfer failed.");
-                            }
+                            }*/
                         }
+                        //listView.setAdapter(itemsAdapter);
+                        itemsAdapter.notifyDataSetChanged();
+
 
                     } catch (IOException e) {
                         e.printStackTrace();
@@ -171,5 +184,20 @@ public class MainActivity extends Activity {
         });
 
     }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+    }
+
+    @Override
+    public void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        // Restore UI state from the savedInstanceState.
+        // This bundle has also been passed to onCreate.
+
+    }
+
+
 
 }

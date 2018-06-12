@@ -14,10 +14,15 @@ tools:context=".MainActivity">
         android:text="Load images"
         android:visibility="visible" />
 
-    <ListView
-        android:id="@+id/customListView"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"></ListView>
+
+
+        <ListView
+            android:id="@+id/customListView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+
+
 
 
 </LinearLayout>
