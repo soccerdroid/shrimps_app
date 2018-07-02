@@ -1,10 +1,15 @@
 package com.example.belen.shrimps;
 
 import android.app.Application;
+import android.os.AsyncTask;
 import android.util.Log;
+import android.view.View;
+import android.widget.LinearLayout;
+import android.widget.Toast;
 
 import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPClient;
+import org.apache.commons.net.ftp.FTPFile;
 import org.apache.commons.net.ftp.FTPReply;
 
 import java.io.IOException;
@@ -12,13 +17,11 @@ import java.io.IOException;
 public class FtpConnection extends Application {
     private String username,password,server;
     private int port;
-    private FTPClient ftp;
+    public static FTPClient ftp;
 
     public void connectToFTP(){
         port = 21;
-        server = "10.10.1.118";
-        //server = "192.168.0.15";
-        //server = "192.168.0.108";
+        server = "192.168.20.1";
         username = "usuario";
         password = "0000";
         this.ftp = new FTPClient();

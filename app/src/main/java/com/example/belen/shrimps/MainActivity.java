@@ -1,8 +1,10 @@
 package com.example.belen.shrimps;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.os.AsyncTask;
 import android.os.Environment;
 import android.os.StrictMode;
 import android.support.v7.app.AppCompatActivity;
@@ -10,6 +12,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.content.Intent;
+import android.view.Window;
 import android.widget.*;
 
 
@@ -66,49 +69,9 @@ public class MainActivity extends Activity {
     ArrayList<Thumbnail> thumbnails;
     ArrayAdapter<Thumbnail> itemsAdapter;
     ListView listView;
+    private ProgressBar spinner;
+    LinearLayout linlaHeaderProgress;
 
-    public void connectToFTP(){
-        port = 21;
-        //server = "10.10.1.118";
-        //server = "192.168.0.15";
-        server = "192.168.20.1";
-        username = "usuario";
-        password = "0000";
-        this.ftp = new FTPClient();
-        try
-        {
-            int reply;
-            this.ftp.connect(server,port);
-            // After connection attempt, you should check the reply code to verify
-            // success.
-            Log.d("SUCCESS","Connected to " + server + ".");
-            Log.d("FTP_REPLY",this.ftp.getReplyString());
-            reply = this.ftp.getReplyCode();
-
-            if (!FTPReply.isPositiveCompletion(reply))
-            {
-                this.ftp.disconnect();
-                Log.d("REPLY_ERROR","FTP server refused connection.");
-            }
-            boolean status = this.ftp.login(username, password);
-            /*
-             * Set File Transfer Mode
-             * To avoid corruption issue you must specified a correct
-             * transfer mode, such as ASCII_FILE_TYPE, BINARY_FILE_TYPE,
-             * EBCDIC_FILE_TYPE .etc. Here, I use BINARY_FILE_TYPE for
-             * transferring text, image, and compressed files.
-             */
-            this.ftp.setFileType(FTP.BINARY_FILE_TYPE);
-            this.ftp.enterLocalPassiveMode();
-            //this.ftp.changeWorkingDirectory(working_directory);
-        }
-        catch (IOException e)
-        {
-            Log.d("ERROR","Could not connect to host");
-            e.printStackTrace();
-        }
-
-    }
 
 
     @Override
@@ -119,12 +82,14 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_main);
         //image = (ImageView) findViewById(R.id.imageView1);
         button = (Button) findViewById(R.id.btnChangeImage);
+        //spinner=(ProgressBar)findViewById(R.id.pBar);
+        linlaHeaderProgress = (LinearLayout) findViewById(R.id.linlaHeaderProgress);
         addListenerOnButton();
-            this.thumbnails= new ArrayList<>();
+        this.thumbnails= new ArrayList<>();
         this.itemsAdapter = new ThumbnailAdapter(this, 0, thumbnails);
         this.listView = (ListView) findViewById(R.id.customListView);
         this.listView.setAdapter(itemsAdapter);
-
+        System.out.println("*************INGRESÉ AL ON CREATE************");
     }
 
 
@@ -132,53 +97,7 @@ public class MainActivity extends Activity {
         button.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View arg0) {
-                connectToFTP();
-                thumbnails.clear();
-                if(ftp.isConnected()){
-                    Toast.makeText(getApplicationContext(),
-                            "ftp connected",
-                            Toast.LENGTH_LONG).show();
-                    try {
-                        int it = 1;
-                        FTPFile[] files = ftp.listFiles();
-                        System.out.println("NUMERO DE ELEMENTOS: " + files.length);
-                        for(int i=0; i<files.length; i++){
-                        //for (FTPFile file: files){
-                            String filename = files[i].getName();
-                            Thumbnail thumbnail = new Thumbnail(filename);
-                            thumbnails.add(thumbnail);
-                            System.out.println("FILENAME: " + filename);
-                            System.out.println("Iteracion: " + it);
-                            it+=1;
-//                            ImageView thumbnail= null;
-//                            Bitmap bitmap = null;
-//                            //reading the image file
-//                            InputStream input = ftp.retrieveFileStream(filename);
-//                            //try with input ???
-//                            bitmap = BitmapFactory.decodeStream(new BufferedInputStream(input));
-//                            thumbnail.setImageBitmap(bitmap);
-                            //input.close();
-/**                            if(!ftp.completePendingCommand()) {
-                                System.out.println("ME DESCONECTE!!!");
-                                ftp.logout();
-                                ftp.disconnect();
-                                System.out.println();
-                                Log.e("FILE_ERROR","File transfer failed.");
-                            }*/
-                        }
-                        //listView.setAdapter(itemsAdapter);
-                        itemsAdapter.notifyDataSetChanged();
-
-
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-                else{
-                    Toast.makeText(getApplicationContext(),
-                            "error in connection",
-                            Toast.LENGTH_LONG).show();
-                }
+                connectAndFillList();
             }
 
         });
@@ -186,8 +105,19 @@ public class MainActivity extends Activity {
     }
 
     @Override
-    protected void onSaveInstanceState(Bundle outState) {
+    public void onSaveInstanceState(Bundle outState) {
+        // Save UI state changes to the savedInstanceState.
+        // This bundle will be passed to onCreate if the process is
+        // killed and restarted.
+        ArrayList<String> thumbnails_stringify = new ArrayList<String>();
+        for (Thumbnail thumbnail: thumbnails){
+            String thumb_string = thumbnail.stringify();
+            thumbnails_stringify.add(thumb_string);
+        }
+        outState.putStringArrayList("ThumbnailsList", thumbnails_stringify );
+
         super.onSaveInstanceState(outState);
+
     }
 
     @Override
@@ -195,6 +125,95 @@ public class MainActivity extends Activity {
         super.onRestoreInstanceState(savedInstanceState);
         // Restore UI state from the savedInstanceState.
         // This bundle has also been passed to onCreate.
+        System.out.println("**********ENTERED TO RESTOREINSTANCE*********");
+        //connectAndFillList();
+        ftp = PhotoActivity.ftp;
+        ArrayList<String> thumbnails_stringify = savedInstanceState.getStringArrayList("ThumbnailsList");
+        for (String thumb_string: thumbnails_stringify){
+            thumbnails.add(Thumbnail.restore(thumb_string));
+        }
+        System.out.println("*********************************************");
+    }
+
+    @SuppressLint("StaticFieldLeak")
+    private void connectAndFillList() {
+
+        linlaHeaderProgress = (LinearLayout) findViewById(R.id.linlaHeaderProgress);
+
+        new AsyncTask<Void, Void, Void>() {
+
+            protected void onPreExecute() {
+                // TODO Auto-generated method stub
+                super.onPreExecute();
+                linlaHeaderProgress.setVisibility(View.VISIBLE);
+            }
+
+            protected Void doInBackground(Void... params) {
+                port = 21;
+                server = "192.168.20.1";
+                username = "usuario";
+                password = "0000";
+                ftp = new FTPClient();
+                try {
+                    int reply;
+                    ftp.connect(server, port);
+                    // After connection attempt, you should check the reply code to verify
+                    // success.
+                    Log.d("SUCCESS", "Connected to " + server + ".");
+                    Log.d("FTP_REPLY", ftp.getReplyString());
+                    reply = ftp.getReplyCode();
+
+                    if (!FTPReply.isPositiveCompletion(reply)) {
+                        ftp.disconnect();
+                        Log.d("REPLY_ERROR", "FTP server refused connection.");
+                    }
+                    boolean status = ftp.login(username, password);
+                    /*
+                     * Set File Transfer Mode
+                     * To avoid corruption issue you must specified a correct
+                     * transfer mode, such as ASCII_FILE_TYPE, BINARY_FILE_TYPE,
+                     * EBCDIC_FILE_TYPE .etc. Here, I use BINARY_FILE_TYPE for
+                     * transferring text, image, and compressed files.
+                     */
+                    ftp.setFileType(FTP.BINARY_FILE_TYPE);
+                    ftp.enterLocalPassiveMode();
+                    /*Toast.makeText(getApplicationContext(),
+                            "ftp connected",
+                            Toast.LENGTH_LONG).show();
+*/
+                    int it = 1;
+                    FTPFile[] files = ftp.listFiles();
+                    System.out.println("NUMERO DE ELEMENTOS: " + files.length);
+                    for (int i = 0; i < files.length; i++) {
+                        //for (FTPFile file: files){
+                        String filename = files[i].getName();
+                        Thumbnail thumbnail = new Thumbnail(filename);
+                        thumbnails.add(thumbnail);
+                        System.out.println("FILENAME: " + filename);
+                        System.out.println("Iteracion: " + it);
+                        it += 1;
+
+                    }
+
+                }
+                catch (IOException e)
+                {
+                    /*Toast.makeText(getApplicationContext(),
+                            "error in connection",
+                            Toast.LENGTH_LONG).show();*/
+                    Log.d("ERROR","Could not connect to host");
+                    e.printStackTrace();
+                }
+
+                return null;
+            }
+
+            protected void onPostExecute(Void result) {
+                itemsAdapter.notifyDataSetChanged();
+                // HIDE THE SPINNER AFTER LOADING FEEDS
+                linlaHeaderProgress.setVisibility(View.GONE);
+            }
+        }.execute();
 
     }
 

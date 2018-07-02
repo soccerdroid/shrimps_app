@@ -5,18 +5,13 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".PhotoActivity">
+    tools:context=".PhotoActivity"
+    android:id="@+id/photo_activity_layout">
     <TextView
         android:id="@+id/thumbnail_name_tv"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text=""/>
-
-    <ImageView
-        android:id="@+id/iv"
-        android:layout_width="match_parent"
-        android:layout_height="500dp"
-        android:contentDescription="Property Image" />
 
 
     <Button
