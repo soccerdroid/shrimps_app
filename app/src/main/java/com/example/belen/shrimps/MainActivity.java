@@ -192,6 +192,7 @@ public class MainActivity extends Activity {
                         System.out.println("FILENAME: " + filename);
                         System.out.println("Iteracion: " + it);
                         it += 1;
+                        //itemsAdapter.notifyDataSetChanged();
 
                     }
 

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.util.AttributeSet;
@@ -18,6 +19,7 @@ public class MyCanvasView extends View implements OnTouchListener {
     private Paint       mPaint;
     private ArrayList<Path> paths = new ArrayList<Path>();
     private ArrayList<Path> undonePaths = new ArrayList<Path>();
+
 
     public Bitmap im;
 
@@ -38,10 +40,9 @@ public class MyCanvasView extends View implements OnTouchListener {
         mCanvas = new Canvas();
         mPath = new Path();
 
-
     }
 
-    public MyCanvasView(Context context, AttributeSet attrs, Bitmap im)
+    public MyCanvasView(Context context, AttributeSet attrs, Bitmap bitmap)
     {
         super(context,attrs);
         setFocusable(true);
@@ -57,9 +58,10 @@ public class MyCanvasView extends View implements OnTouchListener {
         mPaint.setStrokeWidth(6);
         mCanvas = new Canvas();
         mPath = new Path();
-        this.im = im;
+        this.im = bitmap;
 
     }
+
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
@@ -67,14 +69,15 @@ public class MyCanvasView extends View implements OnTouchListener {
 
     @Override
     protected void onDraw(Canvas canvas) {
+        System.out.println("ENTRÉ AL ON DRAW");
         super.onDraw(canvas);
-        if(this.im!= null){
-            System.out.println("ENTRE AL ON DRAW");
-            canvas.drawBitmap(this.im, 0, 0, null);
-        }
         // Draw the bitmap that has the saved path.
         //canvas.drawBitmap(m, 0, 0, null);
-
+        System.out.println("CANVAS SIZE"+canvas.getWidth()+" "+canvas.getHeight());
+        if(this.im!= null ){
+            System.out.println("ESTOY DIBUJANDO EL BITMAP");
+            canvas.drawBitmap(this.im, 0, 0, null);
+        }
         for (Path p : paths){
             canvas.drawPath(p, mPaint);
         }
@@ -85,6 +88,7 @@ public class MyCanvasView extends View implements OnTouchListener {
     private static final float TOUCH_TOLERANCE = 4;
 
     private void touch_start(float x, float y) {
+        mPath = new Path();
         undonePaths.clear();
         mPath.reset();
         mPath.moveTo(x, y);
@@ -106,7 +110,7 @@ public class MyCanvasView extends View implements OnTouchListener {
         mCanvas.drawPath(mPath, mPaint);
         // kill this so we don't double draw
         paths.add(mPath);
-        mPath = new Path();
+
 
     }
 
@@ -122,6 +126,10 @@ public class MyCanvasView extends View implements OnTouchListener {
         }
         //toast the user
     }
+    public void delete() {
+        paths.remove(paths.size() - 1);
+        invalidate();
+    }
 
     public void onClickRedo (){
         if (undonePaths.size()>0)
@@ -133,15 +141,24 @@ public class MyCanvasView extends View implements OnTouchListener {
         {
 
         }
-        //toast the user
+
     }
 
     public void setBitmap(Bitmap im){
         this.im = im;
-        Bitmap tempBitmap = im.copy(Bitmap.Config.ARGB_8888, true);
-        mCanvas.drawBitmap(tempBitmap, 0, 0, null);
 
-        //mCanvas.setBitmap(tempBitmap);
+    }
+    public void setColor(String newColor){
+    //set color
+        int paintColor = Color.parseColor(newColor);
+        this.mPaint = new Paint();
+        this.mPaint.setColor(paintColor);
+        this.mPaint.setAntiAlias(true);
+        this.mPaint.setDither(true);
+        this.mPaint.setStyle(Paint.Style.STROKE);
+        this.mPaint.setStrokeJoin(Paint.Join.ROUND);
+        this.mPaint.setStrokeCap(Paint.Cap.ROUND);
+        this.mPaint.setStrokeWidth(6);
     }
 
     @Override
@@ -165,4 +182,45 @@ public class MyCanvasView extends View implements OnTouchListener {
         }
         return true;
     }
+    @Override
+    protected void onMeasure(int widthMeasureSpec,
+                             int heightMeasureSpec){
+
+        super.setMeasuredDimension(measureWidth(widthMeasureSpec), measureHeight(heightMeasureSpec));
+
+    }
+
+    private int measureWidth(int measureSpec) {
+        int preferred = this.im.getWidth() * 2;
+        return getMeasurement(measureSpec, preferred);
+    }
+
+    private int measureHeight(int measureSpec) {
+        int preferred = this.im.getHeight() * 2;
+        return getMeasurement(measureSpec, preferred);
+    }
+
+    private int getMeasurement(int measureSpec, int preferred) {
+        int specSize = MeasureSpec.getSize(measureSpec);
+        int measurement = 0;
+        switch(MeasureSpec.getMode(measureSpec)) {
+            case MeasureSpec.EXACTLY:
+                // This means the width of this view has been given.
+                measurement = specSize;
+                break;
+            case MeasureSpec.AT_MOST:
+                // Take the minimum of the preferred size and what
+                // we were told to be.
+                measurement = Math.min(preferred, specSize);
+                break;
+            default:
+                measurement = preferred;
+                break;
+        }
+
+        return measurement;
+    }
+
+
+
 }

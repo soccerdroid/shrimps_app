@@ -1,4 +1,12 @@
 <resources>
     <string name="app_name">Shrimps</string>
     <string name="image_name">Image name</string>
+    <string-array name="palette_array">
+        <item>20</item>
+        <item>21</item>
+        <item>22</item>
+        <item>23</item>
+        <item>24</item>
+    </string-array>
+
 </resources>
