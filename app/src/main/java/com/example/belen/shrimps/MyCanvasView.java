@@ -9,19 +9,19 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
+import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.view.View.OnTouchListener;
 import android.widget.ImageView;
 
 public class MyCanvasView extends View implements OnTouchListener {
-    private Canvas  mCanvas;
-    private Path    mPath;
-    private Paint       mPaint;
-    private ArrayList<Path> paths = new ArrayList<Path>();
-    private ArrayList<Path> undonePaths = new ArrayList<Path>();
+    private Canvas  mCanvas; //drawCanvas
+    private Path    mPath; //drawPath
+    private Paint       mPaint,canvasPaint; //drawPaint
+    private ArrayList<Path> paths = new ArrayList<>();
+    private ArrayList<Path> undonePaths = new ArrayList<>();
+    public Bitmap im; //canvasBitmap
 
-
-    public Bitmap im;
 
     public MyCanvasView(Context context, AttributeSet attrs)
     {
@@ -29,16 +29,9 @@ public class MyCanvasView extends View implements OnTouchListener {
         setFocusable(true);
         setFocusableInTouchMode(true);
         this.setOnTouchListener(this);
-        mPaint = new Paint();
-        mPaint.setAntiAlias(true);
-        mPaint.setDither(true);
-        mPaint.setColor(0xFFFFFFFF);
-        mPaint.setStyle(Paint.Style.STROKE);
-        mPaint.setStrokeJoin(Paint.Join.ROUND);
-        mPaint.setStrokeCap(Paint.Cap.ROUND);
-        mPaint.setStrokeWidth(6);
+        setupDrawing();
         mCanvas = new Canvas();
-        mPath = new Path();
+
 
     }
 
@@ -48,6 +41,13 @@ public class MyCanvasView extends View implements OnTouchListener {
         setFocusable(true);
         setFocusableInTouchMode(true);
         this.setOnTouchListener(this);
+        setupDrawing();
+        mCanvas = new Canvas();
+        this.im = bitmap;
+
+    }
+
+    public void setupDrawing(){
         mPaint = new Paint();
         mPaint.setAntiAlias(true);
         mPaint.setDither(true);
@@ -56,40 +56,38 @@ public class MyCanvasView extends View implements OnTouchListener {
         mPaint.setStrokeJoin(Paint.Join.ROUND);
         mPaint.setStrokeCap(Paint.Cap.ROUND);
         mPaint.setStrokeWidth(6);
-        mCanvas = new Canvas();
         mPath = new Path();
-        this.im = bitmap;
-
+        canvasPaint = new Paint(Paint.DITHER_FLAG);
     }
 
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
+        if(this.im!=null) {
+            mCanvas = new Canvas(this.im); //was not before
+        }
+        System.out.println("ENTRE AL ONSIZECHANGED");
     }
 
     @Override
     protected void onDraw(Canvas canvas) {
-        System.out.println("ENTRÉ AL ON DRAW");
-        super.onDraw(canvas);
-        // Draw the bitmap that has the saved path.
-        //canvas.drawBitmap(m, 0, 0, null);
+        //super.onDraw(canvas);
         System.out.println("CANVAS SIZE"+canvas.getWidth()+" "+canvas.getHeight());
         if(this.im!= null ){
             System.out.println("ESTOY DIBUJANDO EL BITMAP");
-            canvas.drawBitmap(this.im, 0, 0, null);
+            canvas.drawBitmap(this.im, 0, 0, canvasPaint); //before was null
+            canvas.drawPath(mPath, mPaint); //was not before
         }
-        for (Path p : paths){
+        /*for (Path p : paths){
             canvas.drawPath(p, mPaint);
-        }
-        canvas.drawPath(mPath, mPaint);
+        }*/
+        //canvas.drawPath(mPath, mPaint);
     }
 
     private float mX, mY;
     private static final float TOUCH_TOLERANCE = 4;
 
     private void touch_start(float x, float y) {
-        mPath = new Path();
-        undonePaths.clear();
         mPath.reset();
         mPath.moveTo(x, y);
         mX = x;
@@ -110,6 +108,7 @@ public class MyCanvasView extends View implements OnTouchListener {
         mCanvas.drawPath(mPath, mPaint);
         // kill this so we don't double draw
         paths.add(mPath);
+        mPath.reset();
 
 
     }
@@ -120,15 +119,7 @@ public class MyCanvasView extends View implements OnTouchListener {
             undonePaths.add(paths.remove(paths.size()-1));
             invalidate();
         }
-        else
-        {
 
-        }
-        //toast the user
-    }
-    public void delete() {
-        paths.remove(paths.size() - 1);
-        invalidate();
     }
 
     public void onClickRedo (){
@@ -145,20 +136,16 @@ public class MyCanvasView extends View implements OnTouchListener {
     }
 
     public void setBitmap(Bitmap im){
-        this.im = im;
+        Bitmap mutableBitmap = im.copy(Bitmap.Config.ARGB_8888, true); //was not before
+        this.im = mutableBitmap;
 
     }
     public void setColor(String newColor){
     //set color
+        invalidate();  //was not before
         int paintColor = Color.parseColor(newColor);
-        this.mPaint = new Paint();
         this.mPaint.setColor(paintColor);
-        this.mPaint.setAntiAlias(true);
-        this.mPaint.setDither(true);
-        this.mPaint.setStyle(Paint.Style.STROKE);
-        this.mPaint.setStrokeJoin(Paint.Join.ROUND);
-        this.mPaint.setStrokeCap(Paint.Cap.ROUND);
-        this.mPaint.setStrokeWidth(6);
+
     }
 
     @Override
@@ -169,17 +156,19 @@ public class MyCanvasView extends View implements OnTouchListener {
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
                 touch_start(x, y);
-                invalidate();
+                //invalidate();
                 break;
             case MotionEvent.ACTION_MOVE:
                 touch_move(x, y);
-                invalidate();
+                //invalidate();
                 break;
             case MotionEvent.ACTION_UP:
                 touch_up();
-                invalidate();
                 break;
+            default:
+                return false;
         }
+        invalidate();
         return true;
     }
     @Override

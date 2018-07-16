@@ -33,7 +33,7 @@ public class PhotoActivity extends AppCompatActivity  {
 
     public static FTPClient ftp;
     TextView thumbnail_name;
-    Button backBtn;
+    Button backBtn, eraseBtn;
     Spinner spinner;
     Point size ;
     public static MyCanvasView myCanvasView;
@@ -45,15 +45,13 @@ public class PhotoActivity extends AppCompatActivity  {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_photo_2);
-        //LinearLayout layout = (LinearLayout) findViewById(R.id.photo_activity_layout);
         myCanvasView = (MyCanvasView)findViewById(R.id.my_canvas);
         Bundle b = getIntent().getExtras();
-        //LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(layout.getWidth(),layout.getHeight());
-        //System.out.println("Linear layout size"+layout.getWidth()+","+layout.getHeight());
         //Get passed file name
         String name = (String) b.get("name");
         thumbnail_name = findViewById(R.id.thumbnail_name_tv);
         backBtn = findViewById(R.id.back_btn);
+        eraseBtn = findViewById(R.id.erase_btn);
         thumbnail_name.setText(name);
         this.ftp = MainActivity.ftp;
         addListenerOnButton();
@@ -69,14 +67,7 @@ public class PhotoActivity extends AppCompatActivity  {
             InputStream input = this.ftp.retrieveFileStream(name);
             BufferedInputStream buf = new BufferedInputStream(input);
             bitmap = BitmapFactory.decodeStream(buf);
-
-            //Bitmap tempBitmap = Bitmap.createBitmap(image_width, image_height,Bitmap.Config.ARGB_8888);
-            //Bitmap tempBitmap = bitmap.copy(Bitmap.Config.ARGB_8888, true);
-
-            //myCanvasView = new MyCanvasView(this,null);
             myCanvasView.setBitmap(bitmap);
-
-            //layout.addView(myCanvasView);
             buf.close();
             input.close();
             if(!this.ftp.completePendingCommand()) {
@@ -107,6 +98,15 @@ public class PhotoActivity extends AppCompatActivity  {
             }
         });
 
+    }
+
+    public void addEraseListener(){
+        this.eraseBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                myCanvasView.onClickUndo();
+            }
+        });
     }
 
 
