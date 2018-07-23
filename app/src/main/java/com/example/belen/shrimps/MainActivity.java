@@ -58,7 +58,7 @@ import org.apache.commons.net.util.TrustManagerUtils;
 
 public class MainActivity extends Activity {
 
-    Button button;
+    Button button, shutdown_button, takephoto_button;
     ImageView image;
     public static FTPClient ftp;
     public static String server;
@@ -82,14 +82,41 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_main);
         //image = (ImageView) findViewById(R.id.imageView1);
         button = (Button) findViewById(R.id.btnChangeImage);
-        //spinner=(ProgressBar)findViewById(R.id.pBar);
+        takephoto_button = (Button) findViewById(R.id.btnTakePhoto);
+        takephoto_button.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View arg0) {
+                try {
+                    SocketConnection socket = new SocketConnection();
+                    socket.takePhoto();
+                    socket.closeConnection();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
+        });
+        shutdown_button = (Button) findViewById(R.id.btnShutdown);
+        shutdown_button.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View arg0) {
+                try {
+                    SocketConnection socket = new SocketConnection();
+                    socket.shutdownPi();
+                    socket.closeConnection();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
+        });
         linlaHeaderProgress = (LinearLayout) findViewById(R.id.linlaHeaderProgress);
         addListenerOnButton();
         this.thumbnails= new ArrayList<>();
         this.itemsAdapter = new ThumbnailAdapter(this, 0, thumbnails);
         this.listView = (ListView) findViewById(R.id.customListView);
         this.listView.setAdapter(itemsAdapter);
-        System.out.println("*************INGRESÉ AL ON CREATE************");
+
     }
 
 
@@ -125,14 +152,12 @@ public class MainActivity extends Activity {
         super.onRestoreInstanceState(savedInstanceState);
         // Restore UI state from the savedInstanceState.
         // This bundle has also been passed to onCreate.
-        System.out.println("**********ENTERED TO RESTOREINSTANCE*********");
-        //connectAndFillList();
         ftp = PhotoActivity.ftp;
         ArrayList<String> thumbnails_stringify = savedInstanceState.getStringArrayList("ThumbnailsList");
         for (String thumb_string: thumbnails_stringify){
             thumbnails.add(Thumbnail.restore(thumb_string));
         }
-        System.out.println("*********************************************");
+
     }
 
     @SuppressLint("StaticFieldLeak")

@@ -7,6 +7,8 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffXfermode;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
@@ -21,6 +23,8 @@ public class MyCanvasView extends View implements OnTouchListener {
     private ArrayList<Path> paths = new ArrayList<>();
     private ArrayList<Path> undonePaths = new ArrayList<>();
     public Bitmap im; //canvasBitmap
+    private ScaleGestureDetector scaleDetector; //not before
+    private float scaleFactor = 1.f;
 
 
     public MyCanvasView(Context context, AttributeSet attrs)
@@ -31,7 +35,8 @@ public class MyCanvasView extends View implements OnTouchListener {
         this.setOnTouchListener(this);
         setupDrawing();
         mCanvas = new Canvas();
-
+        scaleDetector = new ScaleGestureDetector(context, new ScaleListener());
+        //paths.add(this.mPath); //was not before
 
     }
 
@@ -58,6 +63,7 @@ public class MyCanvasView extends View implements OnTouchListener {
         mPaint.setStrokeWidth(6);
         mPath = new Path();
         canvasPaint = new Paint(Paint.DITHER_FLAG);
+        paths.add(mPath);
     }
 
     @Override
@@ -72,23 +78,26 @@ public class MyCanvasView extends View implements OnTouchListener {
     @Override
     protected void onDraw(Canvas canvas) {
         //super.onDraw(canvas);
-        System.out.println("CANVAS SIZE"+canvas.getWidth()+" "+canvas.getHeight());
+        canvas.scale(scaleFactor, scaleFactor);
         if(this.im!= null ){
             System.out.println("ESTOY DIBUJANDO EL BITMAP");
-            canvas.drawBitmap(this.im, 0, 0, canvasPaint); //before was null
-            canvas.drawPath(mPath, mPaint); //was not before
+            canvas.drawBitmap(this.im, 0, 0, canvasPaint);
+            //canvas.drawPath(mPath, mPaint); //was before
+            System.out.println("JUST BEFORE DRAWING PATHS");
+            for (Path p : paths){  //was not before
+                canvas.drawPath(p, mPaint);
+            }
         }
-        /*for (Path p : paths){
-            canvas.drawPath(p, mPaint);
-        }*/
+
         //canvas.drawPath(mPath, mPaint);
+
     }
 
     private float mX, mY;
     private static final float TOUCH_TOLERANCE = 4;
 
     private void touch_start(float x, float y) {
-        mPath.reset();
+        //mPath.reset(); //was before
         mPath.moveTo(x, y);
         mX = x;
         mY = y;
@@ -114,11 +123,14 @@ public class MyCanvasView extends View implements OnTouchListener {
     }
 
     public void onClickUndo () {
-        if (paths.size()>0)
+        System.out.println("TAMAÑO DE PATHS: "+paths.size());
+        /*if (paths.size()>0)
         {
             undonePaths.add(paths.remove(paths.size()-1));
             invalidate();
-        }
+        }*/
+        invalidate();
+        mPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR)); //was not before
 
     }
 
@@ -136,13 +148,13 @@ public class MyCanvasView extends View implements OnTouchListener {
     }
 
     public void setBitmap(Bitmap im){
-        Bitmap mutableBitmap = im.copy(Bitmap.Config.ARGB_8888, true); //was not before
+        Bitmap mutableBitmap = im.copy(Bitmap.Config.ARGB_8888, true);
         this.im = mutableBitmap;
 
     }
     public void setColor(String newColor){
     //set color
-        invalidate();  //was not before
+        invalidate();
         int paintColor = Color.parseColor(newColor);
         this.mPaint.setColor(paintColor);
 
@@ -210,6 +222,21 @@ public class MyCanvasView extends View implements OnTouchListener {
         return measurement;
     }
 
+    @Override
+    public boolean onTouchEvent(MotionEvent ev) {
+        scaleDetector.onTouchEvent(ev);
+        return true;
+    }
 
+    private class ScaleListener extends
+            ScaleGestureDetector.SimpleOnScaleGestureListener {
+        @Override
+        public boolean onScale(ScaleGestureDetector detector) {
+            scaleFactor *= detector.getScaleFactor();
+            scaleFactor = Math.max(0.1f, Math.min(scaleFactor, 10.0f));
+            invalidate();
+            return true;
+        }
+    }
 
 }

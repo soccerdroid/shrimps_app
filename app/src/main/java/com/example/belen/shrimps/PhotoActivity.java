@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Point;
+import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -11,7 +12,6 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
-import com.skydoves.colorpickerpreference.ColorPickerView;
 
 import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPClient;
@@ -20,6 +20,8 @@ import org.apache.commons.net.io.SocketOutputStream;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -33,11 +35,11 @@ public class PhotoActivity extends AppCompatActivity  {
 
     public static FTPClient ftp;
     TextView thumbnail_name;
-    Button backBtn, eraseBtn;
+    Button backBtn, eraseBtn, saveBtn;
     Spinner spinner;
     Point size ;
     public static MyCanvasView myCanvasView;
-
+    String name;
 
     @SuppressLint("ClickableViewAccessibility")
     @Override
@@ -48,10 +50,11 @@ public class PhotoActivity extends AppCompatActivity  {
         myCanvasView = (MyCanvasView)findViewById(R.id.my_canvas);
         Bundle b = getIntent().getExtras();
         //Get passed file name
-        String name = (String) b.get("name");
+        name = (String) b.get("name");
         thumbnail_name = findViewById(R.id.thumbnail_name_tv);
         backBtn = findViewById(R.id.back_btn);
         eraseBtn = findViewById(R.id.erase_btn);
+        saveBtn = findViewById(R.id.save_btn);
         thumbnail_name.setText(name);
         this.ftp = MainActivity.ftp;
         addListenerOnButton();
@@ -67,6 +70,7 @@ public class PhotoActivity extends AppCompatActivity  {
             InputStream input = this.ftp.retrieveFileStream(name);
             BufferedInputStream buf = new BufferedInputStream(input);
             bitmap = BitmapFactory.decodeStream(buf);
+            addEraseListener();
             myCanvasView.setBitmap(bitmap);
             buf.close();
             input.close();
@@ -109,5 +113,36 @@ public class PhotoActivity extends AppCompatActivity  {
         });
     }
 
+    public void addSaveListener(){
+        this.saveBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                myCanvasView.setDrawingCacheEnabled(true);
+                myCanvasView.setDrawingCacheQuality(myCanvasView.DRAWING_CACHE_QUALITY_HIGH);
+                Bitmap bitmap = myCanvasView.getDrawingCache();
+                //Transform bitmap to inputstream
+                ByteArrayOutputStream bos = new ByteArrayOutputStream();
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 0 /*ignored for PNG*/, bos);
+                byte[] bitmapdata = bos.toByteArray();
+                ByteArrayInputStream bs = new ByteArrayInputStream(bitmapdata);
+                try {
+                    String edited_image_name = "edited_"+name;
+                    boolean was_saved= ftp.storeFile(edited_image_name,bs);
+                    bs.close();
+                    if (was_saved) {
+                        System.out.println("The file was uploaded successfully.");
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+
+                //String path = Environment.getExternalStorageDirectory().getAbsolutePath();
+                /*String imgSaved = MediaStore.Images.Media.insertImage(
+                        getContentResolver(), drawView.getDrawingCache(),
+                        UUID.randomUUID().toString()+".png", "drawing");*/
+            }
+        });
+    }
 
 }

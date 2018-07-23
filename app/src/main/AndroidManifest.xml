@@ -29,7 +29,7 @@
             android:name=".FtpConnection"
             tools:ignore="WrongManifestParent" />-->
 
-        <activity android:name=".PhotoActivity" />
+        <activity android:name=".PhotoActivity" android:configChanges="orientation|screenSize"/>
     </application>
 
 
