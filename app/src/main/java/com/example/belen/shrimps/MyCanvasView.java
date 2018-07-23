@@ -14,7 +14,6 @@ import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.view.View.OnTouchListener;
-import android.widget.ImageView;
 
 public class MyCanvasView extends View implements OnTouchListener {
     private Canvas  mCanvas; //drawCanvas
