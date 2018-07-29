@@ -34,7 +34,7 @@ public class MyCanvasView extends View implements OnTouchListener {
         this.setOnTouchListener(this);
         setupDrawing();
         mCanvas = new Canvas();
-        scaleDetector = new ScaleGestureDetector(context, new ScaleListener());
+        //scaleDetector = new ScaleGestureDetector(context, new ScaleListener());
         //paths.add(this.mPath); //was not before
 
     }
@@ -182,60 +182,7 @@ public class MyCanvasView extends View implements OnTouchListener {
         invalidate();
         return true;
     }
-    @Override
-    protected void onMeasure(int widthMeasureSpec,
-                             int heightMeasureSpec){
 
-        super.setMeasuredDimension(measureWidth(widthMeasureSpec), measureHeight(heightMeasureSpec));
 
-    }
-
-    private int measureWidth(int measureSpec) {
-        int preferred = this.im.getWidth() * 2;
-        return getMeasurement(measureSpec, preferred);
-    }
-
-    private int measureHeight(int measureSpec) {
-        int preferred = this.im.getHeight() * 2;
-        return getMeasurement(measureSpec, preferred);
-    }
-
-    private int getMeasurement(int measureSpec, int preferred) {
-        int specSize = MeasureSpec.getSize(measureSpec);
-        int measurement = 0;
-        switch(MeasureSpec.getMode(measureSpec)) {
-            case MeasureSpec.EXACTLY:
-                // This means the width of this view has been given.
-                measurement = specSize;
-                break;
-            case MeasureSpec.AT_MOST:
-                // Take the minimum of the preferred size and what
-                // we were told to be.
-                measurement = Math.min(preferred, specSize);
-                break;
-            default:
-                measurement = preferred;
-                break;
-        }
-
-        return measurement;
-    }
-
-    @Override
-    public boolean onTouchEvent(MotionEvent ev) {
-        scaleDetector.onTouchEvent(ev);
-        return true;
-    }
-
-    private class ScaleListener extends
-            ScaleGestureDetector.SimpleOnScaleGestureListener {
-        @Override
-        public boolean onScale(ScaleGestureDetector detector) {
-            scaleFactor *= detector.getScaleFactor();
-            scaleFactor = Math.max(0.1f, Math.min(scaleFactor, 10.0f));
-            invalidate();
-            return true;
-        }
-    }
 
 }
