@@ -22,8 +22,8 @@ public class MyCanvasView extends View implements OnTouchListener {
     private ArrayList<Path> paths = new ArrayList<>();
     private ArrayList<Path> undonePaths = new ArrayList<>();
     public Bitmap im; //canvasBitmap
-    private ScaleGestureDetector scaleDetector; //not before
-    private float scaleFactor = 1.f;
+    //private ScaleGestureDetector scaleDetector; //not before
+    //private float scaleFactor = 1.f; //
 
 
     public MyCanvasView(Context context, AttributeSet attrs)
@@ -77,7 +77,7 @@ public class MyCanvasView extends View implements OnTouchListener {
     @Override
     protected void onDraw(Canvas canvas) {
         //super.onDraw(canvas);
-        canvas.scale(scaleFactor, scaleFactor);
+        //canvas.scale(scaleFactor, scaleFactor);
         if(this.im!= null ){
             System.out.println("ESTOY DIBUJANDO EL BITMAP");
             canvas.drawBitmap(this.im, 0, 0, canvasPaint);

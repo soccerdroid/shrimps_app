@@ -42,7 +42,8 @@
         <com.example.belen.shrimps.MyCanvasView
             android:layout_width="wrap_content"
             android:layout_height="480px"
-            android:id="@+id/my_canvas"/>
+            android:id="@+id/my_canvas"
+            android:adjustViewBounds="true" />
 
         <LinearLayout
             android:layout_width="match_parent"

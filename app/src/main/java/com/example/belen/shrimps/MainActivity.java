@@ -2,8 +2,11 @@ package com.example.belen.shrimps;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.os.AsyncTask;
 import android.os.Environment;
 import android.os.StrictMode;
@@ -79,13 +82,23 @@ public class MainActivity extends Activity {
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
         super.onCreate(savedInstanceState);
+        setRequestedOrientation (ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         setContentView(R.layout.activity_main);
-        //image = (ImageView) findViewById(R.id.imageView1);
         button = (Button) findViewById(R.id.btnChangeImage);
         takephoto_button = (Button) findViewById(R.id.btnTakePhoto);
         takephoto_button.setOnClickListener(new OnClickListener() {
             @Override
-            public void onClick(View arg0) {
+            public void onClick(final View arg0) {
+                arg0.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        showToast(arg0.getContext());
+                    }
+                    private void showToast(Context context) {
+                        Toast.makeText(context, "Tomando foto+...", Toast.LENGTH_SHORT).show();
+                    }
+
+                });
                 try {
                     SocketConnection socket = new SocketConnection();
                     socket.takePhoto();
@@ -99,8 +112,18 @@ public class MainActivity extends Activity {
         shutdown_button = (Button) findViewById(R.id.btnShutdown);
         shutdown_button.setOnClickListener(new OnClickListener() {
             @Override
-            public void onClick(View arg0) {
+            public void onClick(final View arg0) {
                 try {
+                    arg0.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            showToast(arg0.getContext());
+                        }
+                        private void showToast(Context context) {
+                            Toast.makeText(context, "Apagando...", Toast.LENGTH_SHORT).show();
+                        }
+
+                    });
                     SocketConnection socket = new SocketConnection();
                     socket.shutdownPi();
                     socket.closeConnection();
@@ -170,6 +193,10 @@ public class MainActivity extends Activity {
             protected void onPreExecute() {
                 // TODO Auto-generated method stub
                 super.onPreExecute();
+                ProgressBar myProgressBar = findViewById(R.id.pBar);
+                int color = Color.parseColor("#007DD6");
+                myProgressBar.getIndeterminateDrawable()
+                        .setColorFilter(color, PorterDuff.Mode.SRC_IN);
                 linlaHeaderProgress.setVisibility(View.VISIBLE);
             }
 
@@ -224,9 +251,6 @@ public class MainActivity extends Activity {
                 }
                 catch (IOException e)
                 {
-                    /*Toast.makeText(getApplicationContext(),
-                            "error in connection",
-                            Toast.LENGTH_LONG).show();*/
                     Log.d("ERROR","Could not connect to host");
                     e.printStackTrace();
                 }

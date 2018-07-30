@@ -15,24 +15,22 @@ tools:context=".MainActivity">
             android:id="@+id/btnChangeImage"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Load images"
+            android:text="Cargar fotos"
             android:visibility="visible" />
         <Button
             android:id="@+id/btnTakePhoto"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Take photo"
+            android:text="Tomar foto"
             android:visibility="visible" />
         <Button
             android:id="@+id/btnShutdown"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Shutdown"
+            android:text="Apagar"
             android:visibility="visible" />
 
     </LinearLayout>
-
-
 
 
     <LinearLayout
@@ -48,7 +46,8 @@ tools:context=".MainActivity">
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:layout_weight="2"/>
+            android:layout_weight="2"
+            />
     </LinearLayout>
 
     <ListView
