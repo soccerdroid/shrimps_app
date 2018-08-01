@@ -145,11 +145,16 @@ public class PhotoActivity extends AppCompatActivity  {
                 ByteArrayInputStream bs = new ByteArrayInputStream(bitmapdata);
                 try {
                     String edited_image_name = "edited_"+name;
+                    boolean changes_directory = ftp.changeWorkingDirectory("edited");
                     boolean was_saved= ftp.storeFile(edited_image_name,bs);
                     bs.close();
-                    if (was_saved) {
+                    boolean return_directory = ftp.changeToParentDirectory();
+                    if (changes_directory && was_saved && return_directory) {
                         notSaved = false;
                         System.out.println("The file was uploaded successfully.");
+                    }
+                    else{
+                        System.out.println("could not changed directory");
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
