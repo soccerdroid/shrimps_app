@@ -1,6 +1,10 @@
 language: android
 cache: false
 sudo: true
+branches:
+  only:
+  - master
+
 env:
   global:
     - ANDROID_API_LEVEL=27
