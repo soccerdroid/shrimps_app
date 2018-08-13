@@ -1,5 +1,6 @@
 language: android
 cache: false
+jdk: oraclejdk8
 sudo: true
 branches:
   only:
@@ -10,12 +11,13 @@ env:
     - DIR=EspolguideDev # Project directory
     - ANDROID_API_LEVEL=27
     - ANDROID_EMULATOR_LEVEL=18
-    - ANDROID_BUILD_TOOLS_VERSION=26.0.2
+    - ANDROID_BUILD_TOOLS_VERSION=27.0.3
     #- ANDROID_HOME=${TRAVIS_BUILD_DIR}/android-sdk
    # - ANDROID_HOME=/usr/local/android-sdk
    # - TOOLS=${ANDROID_HOME}/tools
     #- PATH=${ANDROID_HOME}:${ANDROID_HOME}/emulator:${TOOLS}:${TOOLS}/bin:${ANDROID_HOME}/platform-tools:${PATH}
-    - GRADLE_USER_HOME="${TRAVIS_BUILD_DIR}/gradle"
+   # - GRADLE_USER_HOME="${TRAVIS_BUILD_DIR}/gradle"
+
 android:
   components:
     # Uncomment the lines below if you want to
@@ -42,11 +44,11 @@ licenses:
     - 'google-gdk-license-.+'
 
 before_script:
-    - mkdir "$ANDROID_HOME/licenses" || true
+    - mkdir -p "$ANDROID_HOME/licenses"
     #- cp ./licenses/* "$ANDROID_HOME/licenses/"
 
-#install:
-  #- cd ${TRAVIS_BUILD_DIR}/${DIR} && ./gradlew clean build
+before_install:
+  - chmod +x gradlew
 
 script:
     #- gradle build connectedCheck  
