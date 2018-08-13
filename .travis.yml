@@ -43,8 +43,8 @@ before_script:
 
 script:
     #- gradle build connectedCheck  
-    #- ./gradlew build check
-  - cd ${TRAVIS_BUILD_DIR}/${DIR} && ./gradlew connectedCheck
+  - ./gradlew build check
+  #- cd ${TRAVIS_BUILD_DIR}/${DIR} && ./gradlew connectedCheck
 
 notifications:
   email:
