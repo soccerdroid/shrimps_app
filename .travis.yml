@@ -37,7 +37,7 @@ licenses:
     - 'google-gdk-license-.+'
 
 before_script:
-    - mkdir -p "$ANDROID_HOME/licenses"
+    - mkdir "$ANDROID_HOME/licenses" || true
     - cp ./google-licenses/* "$ANDROID_HOME/licenses/"
 
 script:
