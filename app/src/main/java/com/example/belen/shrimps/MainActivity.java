@@ -7,6 +7,8 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
 import android.os.Environment;
 import android.os.StrictMode;
@@ -58,6 +60,8 @@ import org.apache.commons.net.io.CopyStreamEvent;
 import org.apache.commons.net.io.CopyStreamListener;
 import org.apache.commons.net.util.TrustManagerUtils;
 
+import static android.app.PendingIntent.getActivity;
+
 
 public class MainActivity extends Activity {
 
@@ -97,12 +101,14 @@ public class MainActivity extends Activity {
                     private void showToast(Context context) {
                         Toast.makeText(context, "Tomando foto+...", Toast.LENGTH_SHORT).show();
                     }
-
                 });
                 try {
                     SocketConnection socket = new SocketConnection();
-                    socket.takePhoto();
+                    String photo_name = socket.takePhoto(); // was not before
                     socket.closeConnection();
+                    Intent intent = new Intent(arg0.getContext(), PhotoViewActivity.class); // was not before
+                    intent.putExtra("photo_name",photo_name ); // was not before
+                    arg0.getContext().startActivity(intent); // was not before
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -139,6 +145,17 @@ public class MainActivity extends Activity {
         this.itemsAdapter = new ThumbnailAdapter(this, 0, thumbnails);
         this.listView = (ListView) findViewById(R.id.customListView);
         this.listView.setAdapter(itemsAdapter);
+        WifiManager wifiMgr = (WifiManager) this.getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+        WifiInfo wifiInfo = wifiMgr.getConnectionInfo();
+        String wifi_name = wifiInfo.getSSID();
+        if(wifi_name.equalsIgnoreCase("Pi_AP")){
+            System.out.println("match wifi");
+            connectAndFillList(); //was not before
+        }
+        else {
+            System.out.println("no match wifi");
+            System.out.println(wifi_name);
+        }
 
     }
 
@@ -147,14 +164,29 @@ public class MainActivity extends Activity {
         button.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View arg0) {
-                connectAndFillList();
+                WifiManager wifiMgr = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+                WifiInfo wifiInfo = wifiMgr.getConnectionInfo();
+                if(wifiInfo!=null){
+                    String wifi_name = wifiInfo.getSSID();
+                    if(wifi_name.equalsIgnoreCase("Pi_AP")){
+                        connectAndFillList(); //only this was before
+                    }
+                }
+                else {
+                    Context context = getApplicationContext();
+                    CharSequence text = "No está conectado a la red de la raspberry";
+                    int duration = Toast.LENGTH_SHORT;
+
+                    Toast toast = Toast.makeText(context, text, duration);
+                    toast.show();
+                }
             }
 
         });
 
     }
 
-    @Override
+    /*@Override
     public void onSaveInstanceState(Bundle outState) {
         // Save UI state changes to the savedInstanceState.
         // This bundle will be passed to onCreate if the process is
@@ -169,18 +201,19 @@ public class MainActivity extends Activity {
         super.onSaveInstanceState(outState);
 
     }
-
+*/
     @Override
     public void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
-        // Restore UI state from the savedInstanceState.
+        /*// Restore UI state from the savedInstanceState.
         // This bundle has also been passed to onCreate.
         ftp = PhotoActivity.ftp;
         ArrayList<String> thumbnails_stringify = savedInstanceState.getStringArrayList("ThumbnailsList");
         for (String thumb_string: thumbnails_stringify){
             thumbnails.add(Thumbnail.restore(thumb_string));
         }
-
+*/
+        connectAndFillList();
     }
 
     @SuppressLint("StaticFieldLeak")

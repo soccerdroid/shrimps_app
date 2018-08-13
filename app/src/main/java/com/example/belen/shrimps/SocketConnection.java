@@ -1,12 +1,9 @@
 package com.example.belen.shrimps;
 
-import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.Socket;
@@ -25,17 +22,19 @@ public class SocketConnection {
 
     }
 
-    public void takePhoto() {
+    public String takePhoto() {
         try {
             BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream()));
             bufferedWriter.flush();
             bufferedWriter.write(photoMessage);
             bufferedWriter.flush();
-            readSocket();
+            String message = readSocket(); //was not like this
+            return message; // was not before
 
         } catch (IOException e) {
             e.printStackTrace();
         }
+        return null;// was not before
     }
 
     public void closeConnection() throws IOException{
@@ -61,7 +60,7 @@ public class SocketConnection {
         }
     }
 
-    public void readSocket() {
+    public String readSocket() {
         // read text from the socket
         try
         {
@@ -77,23 +76,16 @@ public class SocketConnection {
             // close the reader, and return the results as a String
             bufferedReader.close();
             System.out.println(sb.toString());
-            /*
-            InputStream inputStream = clientSocket.getInputStream();
-            BufferedReader in = new BufferedReader(new InputStreamReader(inputStream));
-            StringBuffer response = new StringBuffer();
-            int result;
-            while ((result = in.read())!= -1) {
-                response.append(Character.toChars(result));
-                System.out.println(result);
-            }*/
             this.closeConnection();
-            System.out.println("Done!");  //never gets printed
+            System.out.println("Done!");
+            return sb.toString();// was not before
         }
         catch (IOException e)
         {
             e.printStackTrace();
 
         }
+        return null;// was not before
     }
 }
 

@@ -116,6 +116,7 @@ public class MyCanvasView extends View implements OnTouchListener {
         mCanvas.drawPath(mPath, mPaint);
         // kill this so we don't double draw
         paths.add(mPath);
+        System.out.println(mPath.toString());
         mPath.reset();
 
 
