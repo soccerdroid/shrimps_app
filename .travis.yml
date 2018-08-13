@@ -38,7 +38,7 @@ licenses:
 
 before_script:
     - mkdir "$ANDROID_HOME/licenses" || true
-    - cp ./google-licenses/* "$ANDROID_HOME/licenses/"
+    - cp ./licenses/* "$ANDROID_HOME/licenses/"
 
 script:
     #- gradle build connectedCheck  
