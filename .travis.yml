@@ -65,7 +65,7 @@ install:
   - echo yes | sdkmanager --licenses
 
   # Check components status
-- sdkmanager --list || true
+  - sdkmanager --list || true
 
 before_script:
   - mkdir -p "$ANDROID_HOME/licenses"
