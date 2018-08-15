@@ -86,7 +86,7 @@ install:
 
   # Check components status
   - sdkmanager --list || true
-  - echo no | avdmanager -v create avd -f -n test -k "system-images;android-"$E$
+  - echo no | avdmanager -v create avd -f -n test -k "system-images;android-"$EMULATOR_API_LEVEL";default;armeabi-v7a"
 
 before_script:
   - android-wait-for-emulator
