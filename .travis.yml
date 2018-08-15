@@ -75,10 +75,10 @@ install:
   - echo yes | sdkmanager "extras;m2repository;com;android;support;constraint;constraint-layout;1.0.2"
   - echo yes | sdkmanager "extras;m2repository;com;android;support;constraint;constraint-layout-solver;1.0.2"
 
-  - echo yes | sdkmanager "system-images;android-"$EMULATOR_API_LEVEL";"$ANDROID_TAG";"$ANDROID_ABI
+  - echo yes | sdkmanager "system-images;android-$EMULATOR_API_LEVEL;$ANDROID_TAG;$ANDROID_ABI
   - avdmanager list
-  - echo avdmanager create avd -f -n test-api$EMULATOR_API_LEVEL -k "system-images;android"-$EMULATOR_API_LEVEL";"$ANDROID_TAG";"$ANDROID_ABI -c 200M
-  - echo no | avdmanager create avd -f -n test-api$EMULATOR_API_LEVEL -k "system-images;android-"$EMULATOR_API_LEVEL";"$ANDROID_TAG";"$ANDROID_ABI -c 200M
+  - echo avdmanager create avd -f -n test-api$EMULATOR_API_LEVEL -k "system-images;android-$EMULATOR_API_LEVEL;$ANDROID_TAG;$ANDROID_ABI" -c 200M
+  - echo no | avdmanager create avd -f -n test-api$EMULATOR_API_LEVEL -k "system-images;android-$EMULATOR_API_LEVEL;$ANDROID_TAG;$ANDROID_ABI -c 200M
   - $ANDROID_HOME/emulator/emulator -avd test-api$EMULATOR_API_LEVEL -no-window -no-audio&
 
   - echo yes | sdkmanager --update
