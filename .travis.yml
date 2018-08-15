@@ -19,15 +19,14 @@ cache:
 
 env:
   matrix:
-    - EMULATOR_API_LEVEL=23  ANDROID_EMULATOR_IMAGE=sys-img-armeabi-v7a-android-23
-    - EMULATOR_API_LEVEL=19  ANDROID_EMULATOR_IMAGE=sys-img-armeabi-v7a-android-19
+    - EMULATOR_API_LEVEL=21  ANDROID_ABI=armeabi_v7a
+    - EMULATOR_API_LEVEL=19  ANDROID_ABI=armeabi_v7a
   global:
     - DIR=EspolguideDev # Project directory
     - ANDROID_API_LEVEL=27
-    - ANDROID_EMULATOR_LEVEL=18
     - ANDROID_BUILD_TOOLS_VERSION=27.0.3
-    - ADB_INSTALL_TIMEOUT=20 # wait up to 20 minutes for adb to connect to emulator (2 minutes by default)
-    - ANDROID_ABI=armeabi-v7a
+    - ADB_INSTALL_TIMEOUT=14 # wait up to 14 minutes for adb to connect to emulator (2 minutes by default)
+    - ANDROID_TAG=default
 
 android:
   components:
@@ -50,9 +49,6 @@ android:
     - extra-android-m2repository
     - addon-google_apis-google-$ANDROID_API_LEVEL
 
-    # Specify the needed emulator    
-    - $ANDROID_EMULATOR_IMAGE
-
 licenses:
     - 'android-sdk-preview-license-.+'
     - 'android-sdk-license-.+'
@@ -65,8 +61,6 @@ before_install:
   - adb logcat > logcat.log & 
   - chmod +x gradlew
   - mkdir -p "$ANDROID_HOME/licenses"
-  #- echo no | avdmanager -v create avd -f -n test -k "system-images;android-"$EMULATOR_API_LEVEL";default;armeabi-v7a"
-  - $ANDROID_HOME/emulator/emulator -avd test -no-audio -no-window &
   
 install:
   - sdkmanager --list || true # List all available targets, device definitions and AVDs.
@@ -81,12 +75,17 @@ install:
   - echo yes | sdkmanager "extras;m2repository;com;android;support;constraint;constraint-layout;1.0.2"
   - echo yes | sdkmanager "extras;m2repository;com;android;support;constraint;constraint-layout-solver;1.0.2"
 
+  - echo yes | sdkmanager "system-images;android-$EMULATOR_API_LEVEL;$ANDROID_TAG;$ANDROID_ABI"
+  - avdmanager list
+  - echo avdmanager create avd -f -n test-api$EMULATOR_API_LEVEL -k "system-images;android-$EMULATOR_API_LEVEL;$ANDROID_TAG;$ANDROID_ABI" -c 200M
+  - echo no | avdmanager create avd -f -n test-api$EMULATOR_API_LEVEL -k "system-images;android-$EMULATOR_API_LEVEL;$ANDROID_TAG;$ANDROID_ABI" -c 200M
+  - $ANDROID_HOME/emulator/emulator -avd test-api$EMULATOR_API_LEVEL -no-window -no-audio&
+
   - echo yes | sdkmanager --update
   - echo yes | sdkmanager --licenses
 
   # Check components status
   - sdkmanager --list || true
-  - echo no | avdmanager -v create avd -f -n test -k "system-images;android-"$EMULATOR_API_LEVEL";default;armeabi-v7a"
 
 before_script:
   - android-wait-for-emulator
@@ -111,5 +110,6 @@ after_script:
 
 notifications:
   email:
+    - jgorotiz@espol.edu.ec
     - mguarand@espol.edu.ec
 
