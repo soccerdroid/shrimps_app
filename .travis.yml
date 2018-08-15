@@ -64,6 +64,9 @@ before_install:
   - echo $ANDROID_ABI
   - adb logcat > logcat.log & 
   - chmod +x gradlew
+  - mkdir -p "$ANDROID_HOME/licenses"
+  #- echo no | avdmanager -v create avd -f -n test -k "system-images;android-"$EMULATOR_API_LEVEL";default;armeabi-v7a"
+  - $ANDROID_HOME/emulator/emulator -avd test -no-audio -no-window &
   
 install:
   - sdkmanager --list || true # List all available targets, device definitions and AVDs.
@@ -83,12 +86,15 @@ install:
 
   # Check components status
   - sdkmanager --list || true
+  - echo no | avdmanager -v create avd -f -n test -k "system-images;android-"$E$
 
 before_script:
-  - mkdir -p "$ANDROID_HOME/licenses"
-  - echo no | avdmanager -v create avd -f -n test -k "system-images;android-"$EMULATOR_API_LEVEL";google_apis;armeabi-v7a"
-  - $ANDROID_HOME/emulator/emulator -avd test -no-audio -no-window &
   - android-wait-for-emulator
+  # Disable animations
+  - adb shell settings put global window_animation_scale 0 &
+  - adb shell settings put global transition_animation_scale 0 &
+  - adb shell settings put global animator_duration_scale 0 &
+  - adb shell input keyevent 82 &
 
 script:  
   - ./gradlew test
