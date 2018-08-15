@@ -6,19 +6,34 @@ branches:
   only:
   - master
 
+# caching as advised by travis
+before_cache:
+  - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
+  - rm -rf $HOME/.gradle/caches/*/plugin-resolution/
+
+cache:
+  directories:
+  - $HOME/.gradle/caches/
+  - $HOME/.gradle/wrapper/
+  - $HOME/.android/build-cache
+
 env:
+  matrix:
+    - EMULATOR_API_LEVEL=23  ANDROID_EMULATOR_IMAGE=sys-img-armeabi-v7a-android-23
+    - EMULATOR_API_LEVEL=19  ANDROID_EMULATOR_IMAGE=sys-img-armeabi-v7a-android-19
   global:
     - DIR=EspolguideDev # Project directory
     - ANDROID_API_LEVEL=27
     - ANDROID_EMULATOR_LEVEL=18
     - ANDROID_BUILD_TOOLS_VERSION=27.0.3
+    - ADB_INSTALL_TIMEOUT=20 # wait up to 20 minutes for adb to connect to emulator (2 minutes by default)
+    - ANDROID_ABI=armeabi-v7a
 
 android:
   components:
-    # Uncomment the lines below if you want to
-    # use the latest revision of Android SDK Tools
+    #using the latest versions 
     - tools
-    - tools
+    - tools # https://github.com/travis-ci/travis-ci/issues/6040#issuecomment-219367943)
     - platform-tools
 
     # The BuildTools version used by your project
@@ -26,6 +41,7 @@ android:
 
     # The SDK version used to compile your project
     - android-$ANDROID_API_LEVEL
+    - android-$EMULATOR_API_LEVEL # get the android sdk version for the emulator
 
     # Additional components
     - extra-google-google_play_services
@@ -34,6 +50,9 @@ android:
     - extra-android-m2repository
     - addon-google_apis-google-$ANDROID_API_LEVEL
 
+    # Specify the needed emulator    
+    - $ANDROID_EMULATOR_IMAGE
+
 licenses:
     - 'android-sdk-preview-license-.+'
     - 'android-sdk-license-.+'
@@ -41,8 +60,11 @@ licenses:
     - '.+'
 
 before_install:
+  - echo $ANDROID_TARGET 
+  - echo $ANDROID_ABI
+  - adb logcat > logcat.log & 
   - chmod +x gradlew
-
+	
 install:
   - sdkmanager --list || true # List all available targets, device definitions and AVDs.
   # Update sdk tools to latest version and install/update components
@@ -64,19 +86,22 @@ install:
 
 before_script:
   - mkdir -p "$ANDROID_HOME/licenses"
+  - echo no | avdmanager -v create avd -f -n test -k "system-images;android-"$EMULATOR_API_LEVEL";google_apis;armeabi-v7a"
+  - $ANDROID_HOME/emulator/emulator -avd test -no-audio -no-window &
+  - android-wait-for-emulator
 
-script:
-    #- gradle build connectedCheck  
+script:  
   - ./gradlew test
+  - ./gradlew connectedAndroidTest # Instrumented unit test
   - ./gradlew lint
 
 after_script:
   # Show tests and lint results
   - echo $ANDROID_TARGET
-  - cat /home/travis/build/Countly/countly-sdk-android/sdk-messaging/build/outputs/lint-results-debug.xml
-  - cat /home/travis/build/Countly/countly-sdk-android/sdk/build/reports/androidTests/connected/index.html
-  #- cat ${TRAVIS_BUILD_DIR}/${DIR}/*/build/outputs/androidTest-results/connected/*
-  #- cat ${TRAVIS_BUILD_DIR}/${DIR}/*/build/reports/lint-results.xml
+  #- cat /home/travis/build/EspolGuideDev/app/build/outputs/lint-results-debug.xml
+  #- cat /home/travis/build/EspolGuideDev/app/build/reports/androidTests/connected/index.html
+  - cat /home/travis/build/shrimps_app/app/build/outputs/lint-results-debug.xml
+  - cat /home/travis/build/shrimps_app/app/build/reports/androidTests/connected/index.html
 
 notifications:
   email:
