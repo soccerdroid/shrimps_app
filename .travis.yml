@@ -4,7 +4,7 @@ jdk: oraclejdk8
 sudo: true
 branches:
   only:
-  - master
+    - master
 
 # caching as advised by travis
 before_cache:
@@ -64,7 +64,7 @@ before_install:
   - echo $ANDROID_ABI
   - adb logcat > logcat.log & 
   - chmod +x gradlew
-	
+  
 install:
   - sdkmanager --list || true # List all available targets, device definitions and AVDs.
   # Update sdk tools to latest version and install/update components
