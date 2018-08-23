@@ -31,6 +31,8 @@
             tools:ignore="WrongManifestParent" />-->
 
         <activity android:name=".PhotoActivity" android:configChanges="orientation|screenSize"/>
+        <activity android:name=".PhotoViewActivity" android:configChanges="orientation|screenSize"/>
+
     </application>
 
 

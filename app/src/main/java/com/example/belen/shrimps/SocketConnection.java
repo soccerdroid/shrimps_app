@@ -9,7 +9,7 @@ import java.io.OutputStreamWriter;
 import java.net.Socket;
 
 public class SocketConnection {
-    private final int PORT = 8889; //Puerto para la conexión
+    private final int PORT = 8888; //Puerto para la conexión
     private final String HOST = "192.168.20.1"; //Host para la conexión
     protected String photoMessage = "fswebcam -p YUYV -d /dev/video0 -r 640x480 --no-banner /home/pi/ftp/$(date +\"%Y-%m-%d_%H%M%S\").jpg"; //Mensajes entrantes (recibidos) en el servidor
     protected String shutdownMessage = "systemctl poweroff";

@@ -15,19 +15,19 @@ tools:context=".MainActivity">
             android:id="@+id/btnChangeImage"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Cargar fotos"
+            android:text="Imágenes"
             android:visibility="visible" />
         <Button
             android:id="@+id/btnTakePhoto"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Tomar foto"
+            android:text="Etiquetado"
             android:visibility="visible" />
         <Button
             android:id="@+id/btnShutdown"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Apagar"
+            android:text="Raspberry"
             android:visibility="visible" />
 
     </LinearLayout>

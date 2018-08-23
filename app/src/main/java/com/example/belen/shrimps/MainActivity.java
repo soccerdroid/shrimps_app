@@ -99,7 +99,7 @@ public class MainActivity extends Activity {
                         showToast(arg0.getContext());
                     }
                     private void showToast(Context context) {
-                        Toast.makeText(context, "Tomando foto+...", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(context, "Tomando foto...", Toast.LENGTH_SHORT).show();
                     }
                 });
                 try {
@@ -148,14 +148,8 @@ public class MainActivity extends Activity {
         WifiManager wifiMgr = (WifiManager) this.getApplicationContext().getSystemService(Context.WIFI_SERVICE);
         WifiInfo wifiInfo = wifiMgr.getConnectionInfo();
         String wifi_name = wifiInfo.getSSID();
-        if(wifi_name.equalsIgnoreCase("Pi_AP")){
-            System.out.println("match wifi");
-            connectAndFillList(); //was not before
-        }
-        else {
-            System.out.println("no match wifi");
-            System.out.println(wifi_name);
-        }
+        System.out.println("WIFI NAME: "+wifi_name);
+
 
     }
 
@@ -168,18 +162,23 @@ public class MainActivity extends Activity {
                 WifiInfo wifiInfo = wifiMgr.getConnectionInfo();
                 if(wifiInfo!=null){
                     String wifi_name = wifiInfo.getSSID();
-                    if(wifi_name.equalsIgnoreCase("Pi_AP")){
+                    if(wifi_name.equalsIgnoreCase("\"Pi_AP\"")){
                         connectAndFillList(); //only this was before
+                    }
+                    else {
+                        Context context = getApplicationContext();
+                        CharSequence text = "No está conectado a la red de la raspberry";
+                        int duration = Toast.LENGTH_SHORT;
+
+                        Toast toast = Toast.makeText(context, text, duration);
+                        toast.show();
                     }
                 }
                 else {
                     Context context = getApplicationContext();
-                    CharSequence text = "No está conectado a la red de la raspberry";
-                    int duration = Toast.LENGTH_SHORT;
-
-                    Toast toast = Toast.makeText(context, text, duration);
-                    toast.show();
+                    Toast toast = Toast.makeText(context, "No hay red wifi", Toast.LENGTH_SHORT);
                 }
+
             }
 
         });
@@ -271,12 +270,15 @@ public class MainActivity extends Activity {
                     System.out.println("NUMERO DE ELEMENTOS: " + files.length);
                     for (int i = 0; i < files.length; i++) {
                         //for (FTPFile file: files){
-                        String filename = files[i].getName();
-                        Thumbnail thumbnail = new Thumbnail(filename);
-                        thumbnails.add(thumbnail);
-                        System.out.println("FILENAME: " + filename);
-                        System.out.println("Iteracion: " + it);
-                        it += 1;
+                        if(files[i].isFile()){
+                            String filename = files[i].getName();
+                            Thumbnail thumbnail = new Thumbnail(filename);
+                            thumbnails.add(thumbnail);
+                            System.out.println("FILENAME: " + filename);
+                            System.out.println("Iteracion: " + it);
+                            it += 1;
+                        }
+
                         //itemsAdapter.notifyDataSetChanged();
 
                     }

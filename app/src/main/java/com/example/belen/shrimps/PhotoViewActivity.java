@@ -18,7 +18,7 @@ import java.io.InputStream;
 
 public class PhotoViewActivity extends AppCompatActivity {
     String photo_name;
-    Button backBtn;
+    Button backBtn, eraseBtn;
     public static FTPClient ftp;
     ImageView photo_iv;
     @SuppressLint("ClickableViewAccessibility")
@@ -27,11 +27,14 @@ public class PhotoViewActivity extends AppCompatActivity {
 
         super.onCreate(savedInstanceState);
         setRequestedOrientation (ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-        setContentView(R.layout.activity_photo);
+        setContentView(R.layout.photo_view);
         Bundle b = getIntent().getExtras();
         //Get passed file name
         photo_name = (String) b.get("photo_name");
+        System.out.println("NOMBRE DE IMAGEN RECIBIDO: "+photo_name);
+        System.out.println("TAMAÑO DE IMAGEN RECIBIDO: "+photo_name.length());
         backBtn = findViewById(R.id.back_btn);
+        eraseBtn = findViewById(R.id.erase_btn);
         photo_iv = findViewById(R.id.photo_iv);
         this.ftp = MainActivity.ftp;
         addListenerOnButton();

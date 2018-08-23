@@ -22,6 +22,7 @@ public class MyCanvasView extends View implements OnTouchListener {
     private ArrayList<Path> paths = new ArrayList<>();
     private ArrayList<Path> undonePaths = new ArrayList<>();
     public Bitmap im; //canvasBitmap
+
     //private ScaleGestureDetector scaleDetector; //not before
     //private float scaleFactor = 1.f; //
 
@@ -129,21 +130,23 @@ public class MyCanvasView extends View implements OnTouchListener {
             undonePaths.add(paths.remove(paths.size()-1));
             invalidate();
         }*/
-        invalidate();
-        mPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR)); //was not before
+        //invalidate();
+        //mPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR)); //was not before
+        if (paths.size() > 0) {
+            // End current path
+            invalidate();
 
+            // Cancel the last one and redraw
+            undonePaths.add(paths.get(paths.size() - 1));
+            paths.remove(paths.size() - 1);
+            invalidate();
+
+
+        }
     }
 
     public void onClickRedo (){
-        if (undonePaths.size()>0)
-        {
-            paths.add(undonePaths.remove(undonePaths.size()-1));
-            invalidate();
-        }
-        else
-        {
 
-        }
 
     }
 

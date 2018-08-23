@@ -8,11 +8,13 @@ import java.util.ArrayList;
 public class Thumbnail {
 
     String name;
+    boolean downloaded;
     ArrayList<ArrayList<Integer>> tags;
 
     public Thumbnail(String name) {
         this.name = name;
         this.tags = new ArrayList<ArrayList<Integer>>();
+        downloaded=false;
     }
 
     public ArrayList<ArrayList<Integer>> getTags() { return tags; }
@@ -25,6 +27,14 @@ public class Thumbnail {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public boolean isDownloaded() {
+        return downloaded;
+    }
+
+    public void setDownloaded(Boolean isDownloaded) {
+        this.downloaded = isDownloaded;
     }
 
     public String stringify() {
