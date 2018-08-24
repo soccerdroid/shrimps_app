@@ -1,84 +1,27 @@
 package com.example.belen.shrimps;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.pm.ActivityInfo;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Color;
-import android.graphics.PorterDuff;
-import android.net.wifi.WifiInfo;
-import android.net.wifi.WifiManager;
-import android.os.AsyncTask;
-import android.os.Environment;
+
 import android.os.StrictMode;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.content.Intent;
-import android.view.Window;
 import android.widget.*;
 
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.File;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.app.ActivityCompat;
-import android.content.pm.PackageManager;
-
-
 import android.app.Activity;
-import android.os.Bundle;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.view.View;
 import android.view.View.OnClickListener;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-//import java.io.PrintWriter;
-//import java.net.InetAddress;
-//import java.net.UnknownHostException;
-import java.net.InetAddress;
-import java.util.ArrayList;
-import java.util.Arrays;
 
-import org.apache.commons.net.PrintCommandListener;
-import org.apache.commons.net.ftp.FTP;
-import org.apache.commons.net.ftp.FTPClient;
-import org.apache.commons.net.ftp.FTPHTTPClient;
-import org.apache.commons.net.ftp.FTPClientConfig;
-import org.apache.commons.net.ftp.FTPConnectionClosedException;
-import org.apache.commons.net.ftp.FTPFile;
-import org.apache.commons.net.ftp.FTPReply;
-import org.apache.commons.net.ftp.FTPSClient;
-import org.apache.commons.net.io.CopyStreamEvent;
-import org.apache.commons.net.io.CopyStreamListener;
-import org.apache.commons.net.util.TrustManagerUtils;
-
-import static android.app.PendingIntent.getActivity;
 
 
 public class MainActivity extends Activity {
 
     Button button, shutdown_button, takephoto_button;
     ImageView image;
-    public static FTPClient ftp;
-    public static String server;
-    public static String username;
-    public static String password;
-    String working_directory="/";
-    public static int port;
-    ArrayList<Thumbnail> thumbnails;
-    ArrayAdapter<Thumbnail> itemsAdapter;
-    ListView listView;
-    private ProgressBar spinner;
-    LinearLayout linlaHeaderProgress;
-
 
 
     @Override
@@ -88,7 +31,8 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setRequestedOrientation (ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         setContentView(R.layout.activity_main);
-        button = (Button) findViewById(R.id.btnChangeImage);
+        button = (Button) findViewById(R.id.btnImages);
+        addListenerOnButton();
         takephoto_button = (Button) findViewById(R.id.btnTakePhoto);
         takephoto_button.setOnClickListener(new OnClickListener() {
             @Override
@@ -115,7 +59,7 @@ public class MainActivity extends Activity {
             }
 
         });
-        shutdown_button = (Button) findViewById(R.id.btnShutdown);
+        shutdown_button = (Button) findViewById(R.id.btnRaspberry);
         shutdown_button.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(final View arg0) {
@@ -139,18 +83,6 @@ public class MainActivity extends Activity {
             }
 
         });
-        linlaHeaderProgress = (LinearLayout) findViewById(R.id.linlaHeaderProgress);
-        addListenerOnButton();
-        this.thumbnails= new ArrayList<>();
-        this.itemsAdapter = new ThumbnailAdapter(this, 0, thumbnails);
-        this.listView = (ListView) findViewById(R.id.customListView);
-        this.listView.setAdapter(itemsAdapter);
-        WifiManager wifiMgr = (WifiManager) this.getApplicationContext().getSystemService(Context.WIFI_SERVICE);
-        WifiInfo wifiInfo = wifiMgr.getConnectionInfo();
-        String wifi_name = wifiInfo.getSSID();
-        System.out.println("WIFI NAME: "+wifi_name);
-
-
     }
 
 
@@ -158,27 +90,8 @@ public class MainActivity extends Activity {
         button.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View arg0) {
-                WifiManager wifiMgr = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
-                WifiInfo wifiInfo = wifiMgr.getConnectionInfo();
-                if(wifiInfo!=null){
-                    String wifi_name = wifiInfo.getSSID();
-                    if(wifi_name.equalsIgnoreCase("\"Pi_AP\"")){
-                        connectAndFillList(); //only this was before
-                    }
-                    else {
-                        Context context = getApplicationContext();
-                        CharSequence text = "No está conectado a la red de la raspberry";
-                        int duration = Toast.LENGTH_SHORT;
-
-                        Toast toast = Toast.makeText(context, text, duration);
-                        toast.show();
-                    }
-                }
-                else {
-                    Context context = getApplicationContext();
-                    Toast toast = Toast.makeText(context, "No hay red wifi", Toast.LENGTH_SHORT);
-                }
-
+                Intent intent = new Intent(arg0.getContext(), ListImages.class);
+                arg0.getContext().startActivity(intent); // was not before
             }
 
         });
@@ -212,95 +125,10 @@ public class MainActivity extends Activity {
             thumbnails.add(Thumbnail.restore(thumb_string));
         }
 */
-        connectAndFillList();
-    }
-
-    @SuppressLint("StaticFieldLeak")
-    private void connectAndFillList() {
-
-        linlaHeaderProgress = (LinearLayout) findViewById(R.id.linlaHeaderProgress);
-
-        new AsyncTask<Void, Void, Void>() {
-
-            protected void onPreExecute() {
-                // TODO Auto-generated method stub
-                super.onPreExecute();
-                ProgressBar myProgressBar = findViewById(R.id.pBar);
-                int color = Color.parseColor("#007DD6");
-                myProgressBar.getIndeterminateDrawable()
-                        .setColorFilter(color, PorterDuff.Mode.SRC_IN);
-                linlaHeaderProgress.setVisibility(View.VISIBLE);
-            }
-
-            protected Void doInBackground(Void... params) {
-                port = 21;
-                server = "192.168.20.1";
-                username = "usuario";
-                password = "0000";
-                ftp = new FTPClient();
-                try {
-                    int reply;
-                    ftp.connect(server, port);
-                    // After connection attempt, you should check the reply code to verify
-                    // success.
-                    Log.d("SUCCESS", "Connected to " + server + ".");
-                    Log.d("FTP_REPLY", ftp.getReplyString());
-                    reply = ftp.getReplyCode();
-
-                    if (!FTPReply.isPositiveCompletion(reply)) {
-                        ftp.disconnect();
-                        Log.d("REPLY_ERROR", "FTP server refused connection.");
-                    }
-                    boolean status = ftp.login(username, password);
-                    /*
-                     * Set File Transfer Mode
-                     * To avoid corruption issue you must specified a correct
-                     * transfer mode, such as ASCII_FILE_TYPE, BINARY_FILE_TYPE,
-                     * EBCDIC_FILE_TYPE .etc. Here, I use BINARY_FILE_TYPE for
-                     * transferring text, image, and compressed files.
-                     */
-                    ftp.setFileType(FTP.BINARY_FILE_TYPE);
-                    ftp.enterLocalPassiveMode();
-                    /*Toast.makeText(getApplicationContext(),
-                            "ftp connected",
-                            Toast.LENGTH_LONG).show();
-*/
-                    int it = 1;
-                    FTPFile[] files = ftp.listFiles();
-                    System.out.println("NUMERO DE ELEMENTOS: " + files.length);
-                    for (int i = 0; i < files.length; i++) {
-                        //for (FTPFile file: files){
-                        if(files[i].isFile()){
-                            String filename = files[i].getName();
-                            Thumbnail thumbnail = new Thumbnail(filename);
-                            thumbnails.add(thumbnail);
-                            System.out.println("FILENAME: " + filename);
-                            System.out.println("Iteracion: " + it);
-                            it += 1;
-                        }
-
-                        //itemsAdapter.notifyDataSetChanged();
-
-                    }
-
-                }
-                catch (IOException e)
-                {
-                    Log.d("ERROR","Could not connect to host");
-                    e.printStackTrace();
-                }
-
-                return null;
-            }
-
-            protected void onPostExecute(Void result) {
-                itemsAdapter.notifyDataSetChanged();
-                // HIDE THE SPINNER AFTER LOADING FEEDS
-                linlaHeaderProgress.setVisibility(View.GONE);
-            }
-        }.execute();
 
     }
+
+
 
 
 
