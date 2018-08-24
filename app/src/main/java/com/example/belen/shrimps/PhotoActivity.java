@@ -54,7 +54,7 @@ public class PhotoActivity extends AppCompatActivity  {
         eraseBtn = findViewById(R.id.erase_btn);
         saveBtn = findViewById(R.id.save_btn);
         thumbnail_name.setText(name);
-        this.ftp = MainActivity.ftp;
+        this.ftp = ListImages.ftp;
         addListenerOnButton();
         addSaveListener();
         spinner = (Spinner) findViewById(R.id.palette_spinner);

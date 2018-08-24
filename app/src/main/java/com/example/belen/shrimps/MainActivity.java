@@ -90,7 +90,7 @@ public class MainActivity extends Activity {
         button.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View arg0) {
-                Intent intent = new Intent(arg0.getContext(), ListImages.class);
+                Intent intent = new Intent(arg0.getContext(), ListImagesActivity.class);
                 arg0.getContext().startActivity(intent); // was not before
             }
 

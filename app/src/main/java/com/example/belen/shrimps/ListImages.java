@@ -3,66 +3,31 @@ package com.example.belen.shrimps;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.pm.ActivityInfo;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
-import android.os.Environment;
 import android.os.StrictMode;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.content.Intent;
-import android.view.Window;
 import android.widget.*;
-
-
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.File;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.app.ActivityCompat;
-import android.content.pm.PackageManager;
-
-
 import android.app.Activity;
-import android.os.Bundle;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.view.View;
-import android.view.View.OnClickListener;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-
-import java.net.InetAddress;
 import java.util.ArrayList;
-import java.util.Arrays;
-
-import org.apache.commons.net.PrintCommandListener;
 import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPClient;
-import org.apache.commons.net.ftp.FTPHTTPClient;
-import org.apache.commons.net.ftp.FTPClientConfig;
-import org.apache.commons.net.ftp.FTPConnectionClosedException;
 import org.apache.commons.net.ftp.FTPFile;
 import org.apache.commons.net.ftp.FTPReply;
-import org.apache.commons.net.ftp.FTPSClient;
-import org.apache.commons.net.io.CopyStreamEvent;
-import org.apache.commons.net.io.CopyStreamListener;
-import org.apache.commons.net.util.TrustManagerUtils;
 
-import static android.app.PendingIntent.getActivity;
 public class ListImages extends Activity {
 
 
-        Button button, shutdown_button, takephoto_button;
+        Button button, takephoto_button;
         ImageView image;
         public static FTPClient ftp;
         public static String server;
@@ -112,30 +77,7 @@ public class ListImages extends Activity {
                 }
 
             });
-            shutdown_button = (Button) findViewById(R.id.btnShutdown);
-            shutdown_button.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(final View arg0) {
-                    try {
-                        arg0.post(new Runnable() {
-                            @Override
-                            public void run() {
-                                showToast(arg0.getContext());
-                            }
-                            private void showToast(Context context) {
-                                Toast.makeText(context, "Apagando...", Toast.LENGTH_SHORT).show();
-                            }
 
-                        });
-                        SocketConnection socket = new SocketConnection();
-                        socket.shutdownPi();
-                        socket.closeConnection();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-
-            });
             linlaHeaderProgress = (LinearLayout) findViewById(R.id.linlaHeaderProgress);
             addListenerOnButton();
             this.thumbnails= new ArrayList<>();
@@ -160,7 +102,7 @@ public class ListImages extends Activity {
                     if(wifiInfo!=null){
                         String wifi_name = wifiInfo.getSSID();
                         if(wifi_name.equalsIgnoreCase("\"Pi_AP\"")){
-                            connectAndFillList(); //only this was before
+                            connectAndFillList();
                         }
                         else {
                             Context context = getApplicationContext();

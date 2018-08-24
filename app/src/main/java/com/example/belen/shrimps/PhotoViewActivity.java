@@ -36,7 +36,7 @@ public class PhotoViewActivity extends AppCompatActivity {
         backBtn = findViewById(R.id.back_btn);
         eraseBtn = findViewById(R.id.erase_btn);
         photo_iv = findViewById(R.id.photo_iv);
-        this.ftp = MainActivity.ftp;
+        this.ftp = ListImages.ftp;
         addListenerOnButton();
         Bitmap bitmap = null;
 
