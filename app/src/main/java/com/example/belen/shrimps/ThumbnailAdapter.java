@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -19,13 +20,24 @@ import java.util.List;
 public class ThumbnailAdapter extends ArrayAdapter<Thumbnail>{
     private Context context;
     private List<Thumbnail> thumbnails;
+    private  int type;
 
-    public ThumbnailAdapter(@NonNull Context context, int resource, ArrayList<Thumbnail> thumbnails) {
+    public ThumbnailAdapter(@NonNull Context context, int resource, ArrayList<Thumbnail> thumbnails, int type) {
         super(context, resource, thumbnails);
         this.context = context;
         this.thumbnails = thumbnails;
+        this.type = type;
     }
 
+    public boolean setType(int type){
+        if(type==1 || type==2){
+            this.type = type;
+            return true;
+        }
+        else{
+            return false;
+        }
+    }
 
 
     public View getView(int position, View convertView, ViewGroup parent) {
@@ -37,31 +49,37 @@ public class ThumbnailAdapter extends ArrayAdapter<Thumbnail>{
         //System.out.println("TO STRING: " + thumbnail.getName().toString());
         TextView thumbnail_tv = view.findViewById(R.id.thumbnail_tv);
         thumbnail_tv.setText(thumbnail.getName());
-        CheckBox thumbnail_chb = view.findViewById(R.id.thumbnail_chb);
 
-        //        ImageView image = (ImageView) view.findViewById(R.id.image);
-
-        //get the image associated with this property
-
-        /*view.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(context, PhotoActivity.class);
-                intent.putExtra("name", thumbnail.getName());
-                context.startActivity(intent);
-            }
-        });*/
-
-        thumbnail_chb.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // Is the view now checked?
-                boolean checked = ((CheckBox) v).isChecked();
-                if (checked){
-                    thumbnail.setDownloaded(true);
+        if (this.type==1){
+            //means that is the tab Servidor
+            CheckBox chb = view.findViewById(R.id.thumbnail_chb);
+            chb.setVisibility(View.VISIBLE);
+            chb.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    // Is the view now checked?
+                    boolean checked = ((CheckBox) v).isChecked();
+                    if (checked){
+                        thumbnail.setDownloaded(true);
+                    }
+                    else{
+                        thumbnail.setDownloaded(false);
+                    }
                 }
-            }
-        });
+            });
+
+        }
+        else{
+            //tab Descargadas
+            view.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent(context, PhotoActivity.class);
+                    intent.putExtra("name", thumbnail.getName());
+                    context.startActivity(intent);
+                }
+            });
+        }
         return view;
     }
 

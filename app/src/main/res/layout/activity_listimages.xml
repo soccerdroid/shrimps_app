@@ -7,25 +7,6 @@
     android:orientation="vertical"
     tools:context=".MainActivity">
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-        <Button
-            android:id="@+id/btnChangeImage"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="DescargarImágenes"
-            android:visibility="visible" />
-        <Button
-            android:id="@+id/btnTakePhoto"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Etiquetar"
-            android:visibility="visible" />
-
-    </LinearLayout>
-
 
     <LinearLayout
         android:id="@+id/linlaHeaderProgress"

@@ -50,7 +50,7 @@ public class ListImages extends Activity {
             super.onCreate(savedInstanceState);
             setRequestedOrientation (ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
             setContentView(R.layout.activity_listimages);
-            button = (Button) findViewById(R.id.btnChangeImage);
+            //button = (Button) findViewById(R.id.btnChangeImage);
             takephoto_button = (Button) findViewById(R.id.btnTakePhoto);
             takephoto_button.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -81,7 +81,7 @@ public class ListImages extends Activity {
             linlaHeaderProgress = (LinearLayout) findViewById(R.id.linlaHeaderProgress);
             addListenerOnButton();
             this.thumbnails= new ArrayList<>();
-            this.itemsAdapter = new ThumbnailAdapter(this, 0, thumbnails);
+            this.itemsAdapter = new ThumbnailAdapter(this, 0, thumbnails,1);
             this.listView = (ListView) findViewById(R.id.customListView);
             this.listView.setAdapter(itemsAdapter);
             WifiManager wifiMgr = (WifiManager) this.getApplicationContext().getSystemService(Context.WIFI_SERVICE);
