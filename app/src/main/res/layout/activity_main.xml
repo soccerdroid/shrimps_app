@@ -18,14 +18,14 @@ tools:context=".MainActivity">
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="25dp"
-            android:text="Imágenes"
+            android:text="@string/label_menu_op"
             android:background="@drawable/rounded_btn"
             android:visibility="visible" />
         <Button
             android:id="@+id/btnTakePhoto"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Etiquetado"
+            android:text="@string/camera_menu_op"
             android:layout_marginTop="25dp"
             android:background="@drawable/rounded_btn"
             android:visibility="visible" />
@@ -33,7 +33,7 @@ tools:context=".MainActivity">
             android:id="@+id/btnRaspberry"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Raspberry"
+            android:text="Raswpberry"
             android:layout_marginTop="25dp"
             android:background="@drawable/rounded_btn"
             android:visibility="gone" />
@@ -51,14 +51,14 @@ tools:context=".MainActivity">
                 android:layout_marginRight="40dp"
                 android:textAllCaps="false"
                 android:background="@drawable/restart_rasp_btn"
-                android:text="Reiniciar\nRaspberry"/>
+                android:text="@string/restart_rasp_btn"/>
             <Button
                 android:id="@+id/btnTurnoffRasp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textAllCaps="false"
                 android:background="@drawable/turnoff_rasp_btn"
-                android:text="Apagar\nRaspberry"/>
+                android:text="@string/turnoff_rasp_btn"/>
         </LinearLayout>
 
     </LinearLayout>

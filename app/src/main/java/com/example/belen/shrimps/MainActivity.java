@@ -52,6 +52,7 @@ public class MainActivity extends Activity {
         addListenerOnButton();
         //botón para tomar foto
         takephoto_button = (Button) findViewById(R.id.btnTakePhoto);
+        setCameraOpListener();
         takephoto_button.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(final View arg0) {
@@ -78,8 +79,7 @@ public class MainActivity extends Activity {
                     Toast.makeText(arg0.getContext(), "No hay conexión con el servidor aún", Toast.LENGTH_SHORT).show();
                 }
 
-            }
-
+        }
         });
         //apagar la raspberry
         shutdown_button = (Button) findViewById(R.id.btnRaspberry);
@@ -157,6 +157,15 @@ public class MainActivity extends Activity {
     }
 
 
+    public void setCameraOpListener(){
+        this.takephoto_button.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getApplicationContext(), CameraActivity.class);
+                startActivity(intent);
+            }
+        });
+    }
 
 
     public void addListenerOnButton() {

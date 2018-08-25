@@ -35,7 +35,8 @@
         <activity
             android:name=".PhotoViewActivity"
             android:configChanges="orientation|screenSize" />
-        <activity android:name=".ListImagesActivity"></activity>
+        <activity android:name=".ListImagesActivity" />
+        <activity android:name=".CameraActivity"></activity>
     </application>
 
 </manifest>

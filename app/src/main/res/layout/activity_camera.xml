@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".CameraActivity"
+    android:orientation="vertical">
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@color/dark_turquoise"
+        android:elevation="4dp"
+        app:title="@string/camera_menu_op"
+        app:titleTextColor="@color/white"
+        app:subtitleTextColor="@color/white"
+        android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
+        app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+        <LinearLayout
+            android:id="@+id/configLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginTop="20dp"
+            android:layout_marginRight="15dp"
+            android:layout_marginLeft="15dp"
+            android:gravity="center_horizontal|center_vertical">
+
+            <LinearLayout
+                style="@style/camera_config_op_containers">
+                <TextView
+                    style="@style/camera_config_op_names"
+                    android:textAlignment="center"
+                    android:text="@string/brightness_config"/>
+                <EditText
+                    android:id="@+id/brightness_edtxt"
+                    android:layout_width="160dp"
+                    android:layout_height="wrap_content"
+                    android:textAlignment="center"
+                    android:inputType="number"/>
+            </LinearLayout>
+
+            <LinearLayout
+                style="@style/camera_config_op_containers">
+                <TextView
+                    style="@style/camera_config_op_names"
+                    android:textAlignment="center"
+                    android:text="@string/contrast_config"/>
+                <EditText
+                    android:id="@+id/contrast_edtxt"
+                    android:layout_width="160dp"
+                    android:layout_height="wrap_content"
+                    android:textAlignment="center"
+                    android:inputType="number"/>
+            </LinearLayout>
+
+            <LinearLayout
+                style="@style/camera_config_op_containers">
+                <TextView
+                    style="@style/camera_config_op_names"
+                    android:textAlignment="center"
+                    android:text="@string/saturation_config"/>
+            </LinearLayout>
+
+            <LinearLayout
+                style="@style/camera_config_op_containers">
+                <TextView
+                    style="@style/camera_config_op_names"
+                    android:textAlignment="center"
+                    android:text="@string/gamma_config"/>
+            </LinearLayout>
+
+            <LinearLayout
+                style="@style/camera_config_op_containers">
+                <TextView
+                    style="@style/camera_config_op_names"
+                    android:textAlignment="center"
+                    android:text="@string/white_balance_config"/>
+            </LinearLayout>
+
+            <LinearLayout
+                style="@style/camera_config_op_containers">
+                <TextView
+                    style="@style/camera_config_op_names"
+                    android:textAlignment="center"
+                    android:text="@string/exposure_config"/>
+            </LinearLayout>
+
+            <Button
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingLeft="20dp"
+                android:paddingRight="20dp"
+                android:textColor="@color/white"
+                android:layout_marginTop="30dp"
+                android:enabled="false"
+                android:background="@color/light_turquoise"
+                android:textAlignment="center"
+                android:text="@string/save_config_btn"/>
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

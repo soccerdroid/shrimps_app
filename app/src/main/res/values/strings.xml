@@ -11,4 +11,20 @@
     </string-array>
     <string name="title_activity_list_images">ListImagesActivity</string>
 
+
+    <string name="camera_menu_op">Cámara</string>
+    <string name="label_menu_op">Etiquetado</string>
+    <string name="turnoff_rasp_btn">Apagar\nRaspberry</string>
+    <string name="restart_rasp_btn">Reiniciar\nRaspberry</string>
+    <string name="take_photo_btn">Tomar foto</string>
+
+    <string name="brightness_config">Brillo</string>
+    <string name="contrast_config">Contraste</string>
+    <string name="saturation_config">Saturación</string>
+    <string name="gamma_config">Gamma</string>
+    <string name="white_balance_config">Balance de blanco</string>
+    <string name="exposure_config">Exposición</string>
+    <string name="save_config_btn">Guardar cambios</string>
+
+
 </resources>
