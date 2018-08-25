@@ -6,29 +6,60 @@ android:layout_width="fill_parent"
 android:layout_height="fill_parent"
 android:orientation="vertical"
 tools:context=".MainActivity">
-
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:layout_marginRight="25dp"
+        android:layout_marginLeft="25dp"
+        android:gravity="center_horizontal|center_vertical">
         <Button
             android:id="@+id/btnImages"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="25dp"
             android:text="Imágenes"
+            android:background="@drawable/rounded_btn"
             android:visibility="visible" />
         <Button
             android:id="@+id/btnTakePhoto"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Etiquetado"
+            android:layout_marginTop="25dp"
+            android:background="@drawable/rounded_btn"
             android:visibility="visible" />
         <Button
             android:id="@+id/btnRaspberry"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Raspberry"
-            android:visibility="visible" />
+            android:layout_marginTop="25dp"
+            android:background="@drawable/rounded_btn"
+            android:visibility="gone" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="60dp"
+            android:orientation="horizontal"
+            android:gravity="center_horizontal"
+            >
+            <Button
+                android:id="@+id/btnRestartRasp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="40dp"
+                android:textAllCaps="false"
+                android:background="@drawable/restart_rasp_btn"
+                android:text="Reiniciar\nRaspberry"/>
+            <Button
+                android:id="@+id/btnTurnoffRasp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAllCaps="false"
+                android:background="@drawable/turnoff_rasp_btn"
+                android:text="Apagar\nRaspberry"/>
+        </LinearLayout>
 
     </LinearLayout>
 
