@@ -26,6 +26,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
+            android:paddingBottom="60dp"
             android:layout_marginTop="20dp"
             android:layout_marginRight="15dp"
             android:layout_marginLeft="15dp"
@@ -65,6 +66,12 @@
                     style="@style/camera_config_op_names"
                     android:textAlignment="center"
                     android:text="@string/saturation_config"/>
+                <EditText
+                    android:id="@+id/saturation_edtxt"
+                    android:layout_width="160dp"
+                    android:layout_height="wrap_content"
+                    android:textAlignment="center"
+                    android:inputType="number"/>
             </LinearLayout>
 
             <LinearLayout
@@ -73,6 +80,12 @@
                     style="@style/camera_config_op_names"
                     android:textAlignment="center"
                     android:text="@string/gamma_config"/>
+                <EditText
+                    android:id="@+id/gamma_edtxt"
+                    android:layout_width="160dp"
+                    android:layout_height="wrap_content"
+                    android:textAlignment="center"
+                    android:inputType="number"/>
             </LinearLayout>
 
             <LinearLayout
@@ -81,6 +94,12 @@
                     style="@style/camera_config_op_names"
                     android:textAlignment="center"
                     android:text="@string/white_balance_config"/>
+                <EditText
+                    android:id="@+id/white_balance_edtxt"
+                    android:layout_width="160dp"
+                    android:layout_height="wrap_content"
+                    android:textAlignment="center"
+                    android:inputType="number"/>
             </LinearLayout>
 
             <LinearLayout
@@ -89,9 +108,16 @@
                     style="@style/camera_config_op_names"
                     android:textAlignment="center"
                     android:text="@string/exposure_config"/>
+                <EditText
+                    android:id="@+id/exposure_edtxt"
+                    android:layout_width="160dp"
+                    android:layout_height="wrap_content"
+                    android:textAlignment="center"
+                    android:inputType="number"/>
             </LinearLayout>
 
             <Button
+                android:id="@+id/save_config_btn"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:paddingLeft="20dp"
@@ -99,7 +125,7 @@
                 android:textColor="@color/white"
                 android:layout_marginTop="30dp"
                 android:enabled="false"
-                android:background="@color/light_turquoise"
+                android:background="@color/grey"
                 android:textAlignment="center"
                 android:text="@string/save_config_btn"/>
         </LinearLayout>
