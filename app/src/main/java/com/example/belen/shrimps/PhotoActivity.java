@@ -22,6 +22,8 @@ import org.apache.commons.net.ftp.FTPClient;
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -54,7 +56,7 @@ public class PhotoActivity extends AppCompatActivity  {
         eraseBtn = findViewById(R.id.erase_btn);
         saveBtn = findViewById(R.id.save_btn);
         thumbnail_name.setText(name);
-        this.ftp = ListImages.ftp;
+        this.ftp = MainActivity.ftp;
         addListenerOnButton();
         addSaveListener();
         spinner = (Spinner) findViewById(R.id.palette_spinner);
@@ -63,7 +65,7 @@ public class PhotoActivity extends AppCompatActivity  {
 
 
         try {
-            InputStream input = this.ftp.retrieveFileStream(name);
+            InputStream input = openFileInput(name);
             BufferedInputStream buf = new BufferedInputStream(input);
             bitmap = BitmapFactory.decodeStream(buf);
             DisplayMetrics displayMetrics = new DisplayMetrics();
@@ -75,12 +77,6 @@ public class PhotoActivity extends AppCompatActivity  {
             myCanvasView.setBitmap(resized_bitmap); //was not before
             buf.close();
             input.close();
-            if(!this.ftp.completePendingCommand()) {
-                this.ftp.logout();
-                this.ftp.disconnect();
-                System.err.println("File transfer failed.");
-                finish();
-            }
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -124,38 +120,38 @@ public class PhotoActivity extends AppCompatActivity  {
         this.saveBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(final View v) {
-                v.post(new Runnable() {
+                /*v.post(new Runnable() {
                     @Override
                     public void run() {
                         showToast(v.getContext());
                     }
                     private void showToast(Context context) {
-                        Toast.makeText(context, "Guardando...", Toast.LENGTH_SHORT).show();
+
                     }
 
-                });
+                });*/
 
                 myCanvasView.setDrawingCacheEnabled(true);
                 myCanvasView.setDrawingCacheQuality(myCanvasView.DRAWING_CACHE_QUALITY_HIGH);
                 Bitmap bitmap = myCanvasView.getDrawingCache();
                 //Transform bitmap to inputstream
-                ByteArrayOutputStream bos = new ByteArrayOutputStream();
-                bitmap.compress(Bitmap.CompressFormat.JPEG, 100 , bos);
-                byte[] bitmapdata = bos.toByteArray();
-                ByteArrayInputStream bs = new ByteArrayInputStream(bitmapdata);
+                //ByteArrayOutputStream bos = new ByteArrayOutputStream();
+
+                //byte[] bitmapdata = bos.toByteArray();
+                //ByteArrayInputStream bs = new ByteArrayInputStream(bitmapdata);
+                FileOutputStream outputStream;
                 try {
                     String edited_image_name = "edited_"+name;
-                    boolean changes_directory = ftp.changeWorkingDirectory("edited");
-                    boolean was_saved= ftp.storeFile(edited_image_name,bs);
-                    bs.close();
-                    boolean return_directory = ftp.changeToParentDirectory();
-                    if (changes_directory && was_saved && return_directory) {
-                        notSaved = false;
-                        System.out.println("The file was uploaded successfully.");
-                    }
-                    else{
-                        System.out.println("could not changed directory");
-                    }
+                    File directory = v.getContext().getDir("edited", MODE_PRIVATE);
+                    File file = new File(directory, edited_image_name);
+                    outputStream = new FileOutputStream(file);
+                    bitmap.compress(Bitmap.CompressFormat.JPEG, 100 , outputStream);
+                    outputStream.close();
+                    //boolean changes_directory = ftp.changeWorkingDirectory("edited");
+                    //boolean was_saved= ftp.storeFile(edited_image_name,bs);
+                    //bs.close();
+                    Toast.makeText(v.getContext(), "Guardado", Toast.LENGTH_SHORT).show();
+
                 } catch (IOException e) {
                     e.printStackTrace();
                 }

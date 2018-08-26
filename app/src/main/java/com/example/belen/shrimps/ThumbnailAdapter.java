@@ -13,6 +13,7 @@ import android.widget.CompoundButton;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import java.sql.SQLOutput;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -65,6 +66,7 @@ public class ThumbnailAdapter extends ArrayAdapter<Thumbnail>{
                     else{
                         thumbnail.setDownloaded(false);
                     }
+                    PageFragment.isSomethingChecked();
                 }
             });
 

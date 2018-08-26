@@ -16,29 +16,20 @@ import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ProgressBar;
-import android.widget.TextView;
-
-import org.apache.commons.net.ftp.FTP;
-import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
-import org.apache.commons.net.ftp.FTPReply;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import static com.example.belen.shrimps.ListImages.server;
-
 public class PageFragment extends Fragment {
 
-    int port;
-    String username,password;
+
     static LinearLayout linlaHeaderProgress;
     static ProgressBar myProgressBar;
-    public static FTPClient ftp;
     static ArrayList<Thumbnail> thumbnails;
     static ArrayAdapter<Thumbnail> itemsAdapter;
     ListView listView;
+
 
 
 
@@ -58,8 +49,6 @@ public class PageFragment extends Fragment {
 
         linlaHeaderProgress = (LinearLayout) view.findViewById(R.id.linlaHeaderProgress);
         myProgressBar = view.findViewById(R.id.pBar);
-
-        System.out.println("MPAGE 1");
         this.itemsAdapter = new ThumbnailAdapter(view.getContext(), 0, thumbnails,1);
         this.listView.setAdapter(itemsAdapter);
         connectAndFillList();
@@ -82,32 +71,12 @@ public class PageFragment extends Fragment {
             }
 
             protected Void doInBackground(Void... params) {
-                port = 21;
-                server = "192.168.20.1";
-                username = "usuario";
-                password = "0000";
-                ftp = new FTPClient();
-                try {
-                    int reply;
-                    ftp.connect(server, port);
-                    // After connection attempt, you should check the reply code to verify
-                    // success.
-                    Log.d("SUCCESS", "Connected to " + server + ".");
-                    Log.d("FTP_REPLY", ftp.getReplyString());
-                    reply = ftp.getReplyCode();
 
-                    if (!FTPReply.isPositiveCompletion(reply)) {
-                        ftp.disconnect();
-                        Log.d("REPLY_ERROR", "FTP server refused connection.");
-                    }
-                    boolean status = ftp.login(username, password);
-                    //set timeout to 15 min
-                    ftp.setConnectTimeout(1800000);
-                    ftp.setSoTimeout(1800000);
-                    ftp.setFileType(FTP.BINARY_FILE_TYPE);
-                    ftp.enterLocalPassiveMode();
-                    int it = 1;
-                    FTPFile[] files = ftp.listFiles();
+                try {
+                    MainActivity.ftp.login(MainActivity.username, MainActivity.password);
+                    int reply;
+                    int it =1;
+                    FTPFile[] files = MainActivity.ftp.listFiles();
                     System.out.println("NUMERO DE ELEMENTOS: " + files.length);
                     for (int i = 0; i < files.length; i++) {
                         //for (FTPFile file: files){
@@ -140,6 +109,20 @@ public class PageFragment extends Fragment {
             }
         }.execute();
 
+    }
+
+
+    static void isSomethingChecked(){
+
+        for(Thumbnail thumb:thumbnails){
+            if (thumb.isDownloaded()){
+                System.out.println("HOLAAAAAAAAAA");
+                ListImagesActivity.download_btn.setVisibility(View.VISIBLE);
+                return;
+            }
+        }
+
+        ListImagesActivity.download_btn.setVisibility(View.INVISIBLE);
     }
 
 

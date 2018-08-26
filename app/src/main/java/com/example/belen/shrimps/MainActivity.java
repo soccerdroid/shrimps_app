@@ -1,10 +1,18 @@
 package com.example.belen.shrimps;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.pm.ActivityInfo;
 
+import android.graphics.Color;
+import android.graphics.PorterDuff;
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
+import android.os.AsyncTask;
 import android.os.StrictMode;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.View;
 import android.content.Intent;
 import android.widget.*;
@@ -14,16 +22,25 @@ import android.app.Activity;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.view.View.OnClickListener;
+
+import org.apache.commons.net.ftp.FTP;
+import org.apache.commons.net.ftp.FTPClient;
+import org.apache.commons.net.ftp.FTPFile;
+import org.apache.commons.net.ftp.FTPReply;
+
 import java.io.IOException;
 
+import static com.example.belen.shrimps.ListImages.server;
 
 
 public class MainActivity extends Activity {
 
     Button button, shutdown_button, takephoto_button;
     ImageView image;
-
-
+    int port;
+    static String username,password;
+    public static FTPClient ftp;
+    static boolean status;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
@@ -47,6 +64,7 @@ public class MainActivity extends Activity {
                     }
                 });
                 try {
+                    System.out.println("TRATANDO DE TOMAR FOTO");
                     SocketConnection socket = new SocketConnection();
                     String photo_name = socket.takePhoto(); // was not before
                     socket.closeConnection();
@@ -83,6 +101,24 @@ public class MainActivity extends Activity {
             }
 
         });
+        WifiManager wifiMgr = (WifiManager) this.getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+        WifiInfo wifiInfo = wifiMgr.getConnectionInfo();
+        if(wifiInfo!=null){
+            String wifi_name = wifiInfo.getSSID();
+            if(wifi_name.equalsIgnoreCase("\"Pi_AP\"")){
+                connectToFTPAsync(this.getApplicationContext());
+            }
+            else {
+                CharSequence text = "No está conectado a la red de la raspberry";
+                int duration = Toast.LENGTH_SHORT;
+                Toast toast = Toast.makeText(this.getApplicationContext(), text, duration);
+                toast.show();
+            }
+        }
+        else {
+            Toast toast = Toast.makeText(this.getApplicationContext(), "No hay red wifi", Toast.LENGTH_SHORT);
+            toast.show();
+        }
     }
 
 
@@ -95,6 +131,65 @@ public class MainActivity extends Activity {
             }
 
         });
+
+    }
+    @SuppressLint("StaticFieldLeak")
+    private void connectToFTPAsync(final Context context) {
+
+        new AsyncTask<Void, Void, Void>() {
+
+            protected void onPreExecute() {
+                // TODO Auto-generated method stub
+                super.onPreExecute();
+            }
+
+            protected Void doInBackground(Void... params) {
+
+                connectToFTP(context);
+                return null;
+            }
+
+            protected void onPostExecute(Void result) {
+
+            }
+        }.execute();
+
+    }
+
+
+    public void connectToFTP(Context context){
+        port = 21;
+        server = "192.168.20.1";
+        username = "usuario";
+        password = "0000";
+        ftp = new FTPClient();
+        try {
+            int reply;
+            ftp.connect(server, port);
+            // After connection attempt, you should check the reply code to verify
+            // success.
+            Log.d("SUCCESS", "Connected to " + server + ".");
+            Log.d("FTP_REPLY", ftp.getReplyString());
+            reply = ftp.getReplyCode();
+
+            if (!FTPReply.isPositiveCompletion(reply)) {
+                ftp.disconnect();
+                Log.d("REPLY_ERROR", "FTP server refused connection.");
+
+            }
+            status = ftp.login(username, password);
+            //set timeout to 15 min
+
+            ftp.setFileType(FTP.BINARY_FILE_TYPE);
+            ftp.enterLocalPassiveMode();
+
+        }
+        catch (IOException e)
+        {
+            Log.d("ERROR","Could not connect to host");
+            e.printStackTrace();
+
+        }
 
     }
 

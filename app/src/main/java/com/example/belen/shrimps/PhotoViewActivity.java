@@ -36,13 +36,13 @@ public class PhotoViewActivity extends AppCompatActivity {
         backBtn = findViewById(R.id.back_btn);
         eraseBtn = findViewById(R.id.erase_btn);
         photo_iv = findViewById(R.id.photo_iv);
-        this.ftp = ListImages.ftp;
         addListenerOnButton();
         Bitmap bitmap = null;
 
 
         try {
-            InputStream input = this.ftp.retrieveFileStream(photo_name);
+            if(!MainActivity.status){MainActivity.ftp.login(MainActivity.username, MainActivity.password);}
+            InputStream input = MainActivity.ftp.retrieveFileStream(photo_name);
             BufferedInputStream buf = new BufferedInputStream(input);
             bitmap = BitmapFactory.decodeStream(buf);
             DisplayMetrics displayMetrics = new DisplayMetrics();
@@ -52,9 +52,9 @@ public class PhotoViewActivity extends AppCompatActivity {
             photo_iv.setImageBitmap(resized_bitmap);
             buf.close();
             input.close();
-            if(!this.ftp.completePendingCommand()) {
-                this.ftp.logout();
-                this.ftp.disconnect();
+            if(!MainActivity.ftp.completePendingCommand()) {
+                MainActivity.ftp.logout();
+                MainActivity.ftp.disconnect();
                 System.err.println("File transfer failed.");
             }
 

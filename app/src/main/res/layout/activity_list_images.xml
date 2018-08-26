@@ -6,6 +6,24 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     tools:context=".ListImagesActivity">
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/my_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="?attr/colorPrimary"
+        android:elevation="4dp"
+        app:titleTextColor="#FFFFFF"
+        app:title="Imágenes"
+        android:theme="@style/AppTheme">
+
+    <Button
+        android:id="@+id/download_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Descargar"
+        android:layout_gravity="right"
+        android:visibility="invisible"/>
+    </android.support.v7.widget.Toolbar>
 
     <android.support.design.widget.TabLayout
         android:id="@+id/sliding_tabs"

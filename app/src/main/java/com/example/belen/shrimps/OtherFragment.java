@@ -60,6 +60,7 @@ public class OtherFragment extends Fragment {
     static ArrayList<String> fetchImages(File directory) {
         //Function that fecthes images of a folder
         ArrayList<String> filenames = new ArrayList<>();
+        System.out.println("DIRECTORIO:"+directory.getAbsolutePath());
         File[] files = directory.listFiles();
 
         for (int i = 0; i < files.length; i++){
@@ -94,6 +95,7 @@ public class OtherFragment extends Fragment {
                     Thumbnail thumbnail = new Thumbnail(files.get(i));
                     thumbnails.add(thumbnail);
                     System.out.println("FILENAME: " + thumbnail.getName());
+
                 }
                 return null;
             }

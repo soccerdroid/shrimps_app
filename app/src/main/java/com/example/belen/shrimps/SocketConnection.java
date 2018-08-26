@@ -1,7 +1,9 @@
 package com.example.belen.shrimps;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -9,10 +11,10 @@ import java.io.OutputStreamWriter;
 import java.net.Socket;
 
 public class SocketConnection {
-    private final int PORT = 8888; //Puerto para la conexión
-    //private final String HOST = "192.168.20.1"; //Host para la conexión
-    private final String HOST = "192.168.0.14";
-    protected String photoMessage = "fswebcam -p YUYV -d /dev/video0 -r 640x480 --no-banner /home/belen/ftp/$(date +\"%Y-%m-%d_%H%M%S\").jpg"; //Mensajes entrantes (recibidos) en el servidor
+    private final int PORT = 8887; //Puerto para la conexión
+    private final String HOST = "192.168.20.1"; //Host para la conexión
+    //private final String HOST = "192.168.0.14";
+    protected String photoMessage = "fswebcam -p YUYV -d /dev/video0 -r 640x480 --no-banner /home/pi/ftp/$(date +\"%Y-%m-%d_%H%M%S\").jpg"; //Mensajes entrantes (recibidos) en el servidor
     protected String shutdownMessage = "systemctl poweroff";
     protected Socket clientSocket; //Socket del cliente
     protected DataOutputStream salidaCliente; //Flujo de datos de salida
@@ -65,6 +67,7 @@ public class SocketConnection {
         // read text from the socket
         try
         {
+
             // read text from the socket
             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
             StringBuilder sb = new StringBuilder();
@@ -72,6 +75,7 @@ public class SocketConnection {
             while ((str = bufferedReader.readLine()) != null)
             {
                 sb.append(str + "\n");
+                System.out.println(str);
             }
 
             // close the reader, and return the results as a String
