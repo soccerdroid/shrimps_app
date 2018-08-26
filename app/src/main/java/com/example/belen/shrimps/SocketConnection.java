@@ -16,6 +16,7 @@ public class SocketConnection {
     //private final String HOST = "192.168.0.14";
     protected String photoMessage = "fswebcam -p YUYV -d /dev/video0 -r 640x480 --no-banner /home/pi/ftp/$(date +\"%Y-%m-%d_%H%M%S\").jpg"; //Mensajes entrantes (recibidos) en el servidor
     protected String shutdownMessage = "systemctl poweroff";
+    //protected String shutdownMessage = "shutdown -h now";
     protected Socket clientSocket; //Socket del cliente
     protected DataOutputStream salidaCliente; //Flujo de datos de salida
 

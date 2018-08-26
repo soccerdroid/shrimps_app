@@ -47,7 +47,6 @@ public class OtherFragment extends Fragment {
         linlaHeaderProgress = (LinearLayout) view.findViewById(R.id.linlaHeaderProgress);
         myProgressBar = view.findViewById(R.id.pBar);
 
-        System.out.println("MPAGE 2");
         this.itemsAdapter = new ThumbnailAdapter(view.getContext(),0,thumbnails,2);
         this.listView.setAdapter(itemsAdapter);
         fillDownloadedImages(view.getContext());

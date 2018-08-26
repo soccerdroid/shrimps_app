@@ -50,33 +50,38 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_main);
         button = (Button) findViewById(R.id.btnImages);
         addListenerOnButton();
+        //botón para tomar foto
         takephoto_button = (Button) findViewById(R.id.btnTakePhoto);
         takephoto_button.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(final View arg0) {
-                arg0.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        showToast(arg0.getContext());
+                if(ftp!=null && ftp.isConnected()) {
+                    arg0.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(arg0.getContext(), "Tomando foto...", Toast.LENGTH_SHORT).show();
+
+                        }
+                    });
+                    try {
+                        SocketConnection socket = new SocketConnection();
+                        String photo_name = socket.takePhoto(); // was not before
+                        socket.closeConnection();
+                        Intent intent = new Intent(arg0.getContext(), PhotoViewActivity.class); // was not before
+                        intent.putExtra("photo_name",photo_name ); // was not before
+                        arg0.getContext().startActivity(intent); // was not before
+                    } catch (IOException e) {
+                        e.printStackTrace();
                     }
-                    private void showToast(Context context) {
-                        Toast.makeText(context, "Tomando foto...", Toast.LENGTH_SHORT).show();
-                    }
-                });
-                try {
-                    System.out.println("TRATANDO DE TOMAR FOTO");
-                    SocketConnection socket = new SocketConnection();
-                    String photo_name = socket.takePhoto(); // was not before
-                    socket.closeConnection();
-                    Intent intent = new Intent(arg0.getContext(), PhotoViewActivity.class); // was not before
-                    intent.putExtra("photo_name",photo_name ); // was not before
-                    arg0.getContext().startActivity(intent); // was not before
-                } catch (IOException e) {
-                    e.printStackTrace();
                 }
+                else{
+                    Toast.makeText(arg0.getContext(), "No hay conexión con el servidor aún", Toast.LENGTH_SHORT).show();
+                }
+
             }
 
         });
+        //apagar la raspberry
         shutdown_button = (Button) findViewById(R.id.btnRaspberry);
         shutdown_button.setOnClickListener(new OnClickListener() {
             @Override
@@ -101,12 +106,13 @@ public class MainActivity extends Activity {
             }
 
         });
+        status = false;
         WifiManager wifiMgr = (WifiManager) this.getApplicationContext().getSystemService(Context.WIFI_SERVICE);
         WifiInfo wifiInfo = wifiMgr.getConnectionInfo();
         if(wifiInfo!=null){
             String wifi_name = wifiInfo.getSSID();
             if(wifi_name.equalsIgnoreCase("\"Pi_AP\"")){
-                connectToFTPAsync(this.getApplicationContext());
+                connectToFTPAsync(this);
             }
             else {
                 CharSequence text = "No está conectado a la red de la raspberry";
@@ -121,20 +127,56 @@ public class MainActivity extends Activity {
         }
     }
 
+    @Override
+    public void onResume(){
+        super.onResume();
+        System.out.println("ENTRÉ AL ON RESUME DEL MAIN");
+        //status = false;
+        WifiManager wifiMgr = (WifiManager) this.getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+        WifiInfo wifiInfo = wifiMgr.getConnectionInfo();
+        if(wifiInfo!=null){
+            String wifi_name = wifiInfo.getSSID();
+            if(wifi_name.equalsIgnoreCase("\"Pi_AP\"")){
+                if(this.ftp==null || !this.ftp.isConnected()){
+                    connectToFTPAsync(this);
+                }
+            }
+            else {
+                CharSequence text = "No está conectado a la red de la raspberry";
+                this.ftp=null;
+                int duration = Toast.LENGTH_SHORT;
+                Toast toast = Toast.makeText(this.getApplicationContext(), text, duration);
+                toast.show();
+            }
+        }
+        else {
+            Toast toast = Toast.makeText(this.getApplicationContext(), "No hay red wifi", Toast.LENGTH_SHORT);
+            toast.show();
+        }
+
+    }
+
+
+
 
     public void addListenerOnButton() {
         button.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View arg0) {
-                Intent intent = new Intent(arg0.getContext(), ListImagesActivity.class);
-                arg0.getContext().startActivity(intent); // was not before
+                if(ftp!=null && ftp.isConnected()) {
+                    Intent intent = new Intent(arg0.getContext(), ListImagesActivity.class);
+                    arg0.getContext().startActivity(intent); // was not before
+                }
+                else{
+                    Toast.makeText(arg0.getContext(), "No hay conexión con el servidor aún", Toast.LENGTH_SHORT).show();
+                }
             }
 
         });
 
     }
     @SuppressLint("StaticFieldLeak")
-    private void connectToFTPAsync(final Context context) {
+    private void connectToFTPAsync(final Activity activity) {
 
         new AsyncTask<Void, Void, Void>() {
 
@@ -144,8 +186,13 @@ public class MainActivity extends Activity {
             }
 
             protected Void doInBackground(Void... params) {
+                activity.runOnUiThread(new Runnable() {
+                    public void run() {
+                        Toast.makeText(activity.getApplicationContext(), "Estableciendo conexión con servidor...", Toast.LENGTH_SHORT).show();
+                    }
+                });
 
-                connectToFTP(context);
+                connectToFTP(activity.getApplicationContext());
                 return null;
             }
 
@@ -179,7 +226,6 @@ public class MainActivity extends Activity {
             }
             status = ftp.login(username, password);
             //set timeout to 15 min
-
             ftp.setFileType(FTP.BINARY_FILE_TYPE);
             ftp.enterLocalPassiveMode();
 
@@ -193,22 +239,7 @@ public class MainActivity extends Activity {
 
     }
 
-    /*@Override
-    public void onSaveInstanceState(Bundle outState) {
-        // Save UI state changes to the savedInstanceState.
-        // This bundle will be passed to onCreate if the process is
-        // killed and restarted.
-        ArrayList<String> thumbnails_stringify = new ArrayList<String>();
-        for (Thumbnail thumbnail: thumbnails){
-            String thumb_string = thumbnail.stringify();
-            thumbnails_stringify.add(thumb_string);
-        }
-        outState.putStringArrayList("ThumbnailsList", thumbnails_stringify );
-
-        super.onSaveInstanceState(outState);
-
-    }
-*/
+    
     @Override
     public void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);

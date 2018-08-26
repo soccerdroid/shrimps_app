@@ -3,6 +3,7 @@ package com.example.belen.shrimps;
 
 import android.annotation.SuppressLint;
 
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.os.AsyncTask;
@@ -16,6 +17,8 @@ import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ProgressBar;
+import android.widget.Toast;
+
 import org.apache.commons.net.ftp.FTPFile;
 
 import java.io.IOException;
@@ -51,6 +54,7 @@ public class PageFragment extends Fragment {
         myProgressBar = view.findViewById(R.id.pBar);
         this.itemsAdapter = new ThumbnailAdapter(view.getContext(), 0, thumbnails,1);
         this.listView.setAdapter(itemsAdapter);
+
         connectAndFillList();
 
         return view;
@@ -73,7 +77,7 @@ public class PageFragment extends Fragment {
             protected Void doInBackground(Void... params) {
 
                 try {
-                    MainActivity.ftp.login(MainActivity.username, MainActivity.password);
+
                     int reply;
                     int it =1;
                     FTPFile[] files = MainActivity.ftp.listFiles();

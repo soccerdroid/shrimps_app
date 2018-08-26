@@ -24,13 +24,6 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal">
 
-
-            <Spinner
-                android:id="@+id/palette_spinner"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:entries="@array/palette_array"/>
-
         </LinearLayout>
 
         <ImageView

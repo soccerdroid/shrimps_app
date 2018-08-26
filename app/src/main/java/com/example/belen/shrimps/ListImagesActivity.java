@@ -65,7 +65,7 @@ public class ListImagesActivity extends AppCompatActivity {
                             getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
                             int new_width = displayMetrics.widthPixels;
                             //read from server
-                            if(MainActivity.status==false){
+                            if(!MainActivity.status){
                                 MainActivity.status = MainActivity.ftp.login(MainActivity.username, MainActivity.password);
                             }
                             input = MainActivity.ftp.retrieveFileStream(filename);

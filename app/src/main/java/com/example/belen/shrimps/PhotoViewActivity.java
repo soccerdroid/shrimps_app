@@ -10,6 +10,8 @@ import android.util.DisplayMetrics;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.Toast;
+
 import org.apache.commons.net.ftp.FTPClient;
 import java.io.BufferedInputStream;
 import java.io.IOException;
@@ -41,7 +43,13 @@ public class PhotoViewActivity extends AppCompatActivity {
 
 
         try {
-            if(!MainActivity.status){MainActivity.ftp.login(MainActivity.username, MainActivity.password);}
+            //si no hay conexión con el servidor...
+            if(MainActivity.ftp==null || !MainActivity.ftp.isConnected()){
+                Toast.makeText(this.getApplicationContext(), "Error recibiendo foto del servidor", Toast.LENGTH_SHORT).show();
+                this.finish();
+            }
+            //caso contrario
+            System.out.println("INTENTANDO RECUPERAR IMAGEN: "+photo_name);
             InputStream input = MainActivity.ftp.retrieveFileStream(photo_name);
             BufferedInputStream buf = new BufferedInputStream(input);
             bitmap = BitmapFactory.decodeStream(buf);
