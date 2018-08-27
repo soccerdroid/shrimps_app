@@ -120,7 +120,6 @@ public class PageFragment extends Fragment {
 
         for(Thumbnail thumb:thumbnails){
             if (thumb.isDownloaded()){
-                System.out.println("HOLAAAAAAAAAA");
                 ListImagesActivity.download_btn.setVisibility(View.VISIBLE);
                 return;
             }

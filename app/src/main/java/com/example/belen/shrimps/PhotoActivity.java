@@ -34,7 +34,7 @@ public class PhotoActivity extends AppCompatActivity  {
     Toast toast;
     public static FTPClient ftp;
     TextView thumbnail_name;
-    Button backBtn, eraseBtn, saveBtn;
+    Button backBtn, saveBtn;
     Spinner spinner;
     public static MyCanvasView myCanvasView;
     String name;
@@ -53,7 +53,6 @@ public class PhotoActivity extends AppCompatActivity  {
         name = (String) b.get("name");
         thumbnail_name = findViewById(R.id.thumbnail_name_tv);
         backBtn = findViewById(R.id.back_btn);
-        eraseBtn = findViewById(R.id.erase_btn);
         saveBtn = findViewById(R.id.save_btn);
         thumbnail_name.setText(name);
         this.ftp = MainActivity.ftp;
@@ -73,7 +72,6 @@ public class PhotoActivity extends AppCompatActivity  {
             int height = displayMetrics.heightPixels;
             int new_width = displayMetrics.widthPixels;
             Bitmap resized_bitmap = fillWidthScreen(new_width,480,640,480,bitmap); //was not before
-            addEraseListener();
             myCanvasView.setBitmap(resized_bitmap); //was not before
             buf.close();
             input.close();
@@ -105,15 +103,6 @@ public class PhotoActivity extends AppCompatActivity  {
 
     }
 
-    //Adds a listener to the eraseBtn
-    public void addEraseListener(){
-        this.eraseBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                myCanvasView.onClickUndo();
-            }
-        });
-    }
 
     //Adds a listener to the saveBtn
     public void addSaveListener(){
@@ -141,9 +130,10 @@ public class PhotoActivity extends AppCompatActivity  {
                 //ByteArrayInputStream bs = new ByteArrayInputStream(bitmapdata);
                 FileOutputStream outputStream;
                 try {
-                    String edited_image_name = "edited_"+name;
-                    File directory = v.getContext().getDir("edited", MODE_PRIVATE);
-                    File file = new File(directory, edited_image_name);
+                    //String edited_image_name = "edited_"+name;
+                    //File directory = v.getContext().getDir("edited", MODE_PRIVATE);
+                    File directory = v.getContext().getFilesDir();
+                    File file = new File(directory, name);
                     outputStream = new FileOutputStream(file);
                     bitmap.compress(Bitmap.CompressFormat.JPEG, 100 , outputStream);
                     outputStream.close();

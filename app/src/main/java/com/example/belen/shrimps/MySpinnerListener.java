@@ -8,11 +8,11 @@ import java.util.ArrayList;
 public class MySpinnerListener implements AdapterView.OnItemSelectedListener {
     String color;
     String[] palette = new String[]{
-            "#ffccbc",
+            "#ffdb99",
             "#ffab91",
-            "#ff8a65",
-            "#ff7043",
-            "#ff5722"
+            "#ffa500",
+            "#ff7400",
+            "#ff0000"
     };
 
     @Override

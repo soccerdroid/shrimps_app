@@ -20,7 +20,7 @@ import java.io.InputStream;
 
 public class PhotoViewActivity extends AppCompatActivity {
     String photo_name;
-    Button backBtn, eraseBtn;
+    Button backBtn;
     public static FTPClient ftp;
     ImageView photo_iv;
     @SuppressLint("ClickableViewAccessibility")
@@ -36,7 +36,6 @@ public class PhotoViewActivity extends AppCompatActivity {
         System.out.println("NOMBRE DE IMAGEN RECIBIDO: "+photo_name);
         System.out.println("TAMAÑO DE IMAGEN RECIBIDO: "+photo_name.length());
         backBtn = findViewById(R.id.back_btn);
-        eraseBtn = findViewById(R.id.erase_btn);
         photo_iv = findViewById(R.id.photo_iv);
         addListenerOnButton();
         Bitmap bitmap = null;

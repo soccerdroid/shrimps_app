@@ -264,7 +264,11 @@ public class MainActivity extends Activity {
             //set file type and mode to receive and donwload
             ftp.setFileType(FTP.BINARY_FILE_TYPE);
             ftp.enterLocalPassiveMode();
-
+            this.runOnUiThread(new Runnable() {
+                public void run() {
+                    Toast.makeText(getWindow().getDecorView().getRootView().getContext(), "Conectado", Toast.LENGTH_SHORT).show();
+                }
+            });
         }
         catch (IOException e)
         {
