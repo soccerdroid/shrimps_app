@@ -82,9 +82,11 @@ public class CameraActivity extends AppCompatActivity {
                         }
                     });
                     try {
+                        Util util = new Util();
+                        String params = util.getCameraParameters(getWindow().getDecorView().getRootView().getContext());
                         SocketConnection socket = null;
                         socket = new SocketConnection();
-                        String photo_name = socket.takePhoto(); // was not before --- SEND CAMERA PARAMETERS HERE
+                        String photo_name = socket.takePhotoWithParams(params); // was not before --- SEND CAMERA PARAMETERS HERE
                         socket.closeConnection();
                         Intent intent = new Intent(getApplicationContext(), PhotoViewActivity.class); // was not before
                         intent.putExtra("photo_name",photo_name ); // was not before

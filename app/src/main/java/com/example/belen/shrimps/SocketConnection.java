@@ -42,6 +42,23 @@ public class SocketConnection {
         return null;// was not before
     }
 
+    public String takePhotoWithParams(String params) {
+        try {
+            BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream()));
+            bufferedWriter.flush();
+            String new_photoMessage = "fswebcam -p YUYV -d /dev/video0 -r 640x480 --no-banner "+params+" /home/pi/ftp/$(date +\"%Y-%m-%d_%H%M%S\").jpg";
+            System.out.println(new_photoMessage);
+            bufferedWriter.write(new_photoMessage);
+            bufferedWriter.flush();
+            String message = readSocket(); //was not like this
+            return message; // was not before
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;// was not before
+    }
+
     public void closeConnection() throws IOException{
         try {
             clientSocket.close();
