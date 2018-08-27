@@ -14,10 +14,7 @@ public class Util {
 
     public static int getConfigValue(Context context, String key){
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
-        System.out.println("AFUERITA *********************");
         if(sharedPref.contains(key)){
-            System.out.println("EN IF *********************");
-
             return sharedPref.getInt(key, getDefaultConfigValue(key));
         }
         return getDefaultConfigValue(key);
@@ -55,7 +52,7 @@ public class Util {
         String contrastStr = "contrast";
         String saturationStr = "saturation";
         String gammaStr = "gamma";
-        String whiteBalanceStr = "SOMETHING";
+        String whiteBalanceStr = "white_balance_temperature";
         String exposureStr = "exposure";
 
         String setParam = "--set ";
