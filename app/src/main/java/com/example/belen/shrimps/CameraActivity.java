@@ -1,5 +1,6 @@
 package com.example.belen.shrimps;
 
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
@@ -7,9 +8,12 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import com.example.belen.shrimps.Utils.Constants;
 import com.example.belen.shrimps.Utils.Util;
+
+import java.io.IOException;
 
 public class CameraActivity extends AppCompatActivity {
     private Toolbar toolbar;
@@ -51,6 +55,30 @@ public class CameraActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             case R.id.action_take_photo:
                 // User chose the "Settings" item, show the app settings UI...
+                if(MainActivity.ftp!=null && MainActivity.ftp.isConnected()) {
+                    getWindow().getDecorView().getRootView().post(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(getApplicationContext(), "Tomando foto...", Toast.LENGTH_SHORT).show();
+
+                        }
+                    });
+                    try {
+                        SocketConnection socket = null;
+                        socket = new SocketConnection();
+                        String photo_name = socket.takePhoto(); // was not before
+                        socket.closeConnection();
+                        Intent intent = new Intent(getApplicationContext(), PhotoViewActivity.class); // was not before
+                        intent.putExtra("photo_name",photo_name ); // was not before
+                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        getApplicationContext().startActivity(intent); // was not before
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+                else{
+                    Toast.makeText(getApplicationContext(), "No hay conexión con el servidor aún", Toast.LENGTH_SHORT).show();
+                }
                 return true;
             default:
                 // If we got here, the user's action was not recognized.

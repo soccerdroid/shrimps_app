@@ -16,7 +16,8 @@ public class SocketConnection {
     //private final String HOST = "192.168.0.14";
     protected String photoMessage = "fswebcam -p YUYV -d /dev/video0 -r 640x480 --no-banner /home/pi/ftp/$(date +\"%Y-%m-%d_%H%M%S\").jpg"; //Mensajes entrantes (recibidos) en el servidor
     protected String shutdownMessage = "systemctl poweroff";
-    //protected String shutdownMessage = "shutdown -h now";
+    protected  String restartMessage = "systemctl reboot";
+    // /protected String shutdownMessage = "shutdown -h now";
     protected Socket clientSocket; //Socket del cliente
     protected DataOutputStream salidaCliente; //Flujo de datos de salida
 
@@ -56,6 +57,19 @@ public class SocketConnection {
             BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream()));
             bufferedWriter.flush();
             bufferedWriter.write(shutdownMessage);
+            bufferedWriter.flush();
+            readSocket();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void restartPi(){
+        try {
+            BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream()));
+            bufferedWriter.flush();
+            bufferedWriter.write(restartMessage);
             bufferedWriter.flush();
             readSocket();
 

@@ -35,7 +35,7 @@ import static com.example.belen.shrimps.ListImages.server;
 
 public class MainActivity extends Activity {
 
-    Button button, shutdown_button, takephoto_button;
+    Button button, shutdown_button,restart_button, takephoto_button;
     ImageView image;
     int port;
     static String username,password;
@@ -53,7 +53,7 @@ public class MainActivity extends Activity {
         //botón para tomar foto
         takephoto_button = (Button) findViewById(R.id.btnTakePhoto);
         setCameraOpListener();
-        takephoto_button.setOnClickListener(new OnClickListener() {
+        /*takephoto_button.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(final View arg0) {
                 if(ftp!=null && ftp.isConnected()) {
@@ -80,9 +80,9 @@ public class MainActivity extends Activity {
                 }
 
         }
-        });
+        });*/
         //apagar la raspberry
-        shutdown_button = (Button) findViewById(R.id.btnRaspberry);
+        shutdown_button = (Button) findViewById(R.id.btnTurnoffRasp);
         shutdown_button.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(final View arg0) {
@@ -99,6 +99,31 @@ public class MainActivity extends Activity {
                     });
                     SocketConnection socket = new SocketConnection();
                     socket.shutdownPi();
+                    socket.closeConnection();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
+        });
+        //reiniciar la raspberry
+        restart_button = (Button) findViewById(R.id.btnRestartRasp);
+        restart_button.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(final View arg0) {
+                try {
+                    arg0.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            showToast(arg0.getContext());
+                        }
+                        private void showToast(Context context) {
+                            Toast.makeText(context, "Reiniciando...", Toast.LENGTH_SHORT).show();
+                        }
+
+                    });
+                    SocketConnection socket = new SocketConnection();
+                    socket.restartPi();
                     socket.closeConnection();
                 } catch (IOException e) {
                     e.printStackTrace();
