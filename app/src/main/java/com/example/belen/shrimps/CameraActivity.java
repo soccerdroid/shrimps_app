@@ -25,6 +25,20 @@ public class CameraActivity extends AppCompatActivity {
     private EditText exposureEt;
     private Button saveConfigBtn;
 
+    private final int MAX_BRIGHTNESS = 64;
+    private final int MIN_BRIGHTNESS = -64;
+    private final int MAX_CONTRAST = 30;
+    private final int MIN_CONTRAST = 0;
+    private final int MAX_SATURATION = 127;
+    private final int MIN_SATURATION = 0;
+    private final int MAX_GAMMA = 250;
+    private final int MIN_GAMMA = 20;
+    private final int MAX_WHITE_BALANCE = 6500;
+    private final int MIN_WHITE_BALANCE = 2800;
+    private final int MAX_EXPOSURE = 5000;
+    private final int MIN_EXPOSURE = 2;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -50,6 +64,10 @@ public class CameraActivity extends AppCompatActivity {
         this.exposureEt.setText(Integer.toString(Util.getConfigValue(getApplicationContext(), Constants.EXPOSURE_STORED_KEY)));
     }
 
+    public void setValuesOnChangeListener(){
+
+    }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
@@ -66,7 +84,7 @@ public class CameraActivity extends AppCompatActivity {
                     try {
                         SocketConnection socket = null;
                         socket = new SocketConnection();
-                        String photo_name = socket.takePhoto(); // was not before
+                        String photo_name = socket.takePhoto(); // was not before --- SEND CAMERA PARAMETERS HERE
                         socket.closeConnection();
                         Intent intent = new Intent(getApplicationContext(), PhotoViewActivity.class); // was not before
                         intent.putExtra("photo_name",photo_name ); // was not before

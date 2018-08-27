@@ -20,7 +20,7 @@ public class Util {
 
             return sharedPref.getInt(key, getDefaultConfigValue(key));
         }
-        return 0;
+        return getDefaultConfigValue(key);
     }
 
     public static int getDefaultConfigValue(String key){
@@ -40,5 +40,31 @@ public class Util {
             default:
                 return Constants.BRIGHTNESS_DEFAULT_VALUE;
         }
+    }
+
+    public String getCameraParameters(Context ctx){
+        String cameraParameters = "";
+        String brightnessVal = Integer.toString(getConfigValue(ctx, Constants.BRIGHTNESS_STORED_KEY));
+        String contrastVal = Integer.toString(getConfigValue(ctx, Constants.CONTRAST_STORED_KEY));
+        String saturationVal = Integer.toString(getConfigValue(ctx, Constants.SATURATION_STORED_KEY));
+        String gammaVal = Integer.toString(getConfigValue(ctx, Constants.GAMMA_STORED_KEY));
+        String whiteBalanceVal = Integer.toString(getConfigValue(ctx, Constants.WHITE_BALANCE_STORED_KEY));
+        String exposureVal = Integer.toString(getConfigValue(ctx, Constants.EXPOSURE_STORED_KEY));
+
+        String brightnessStr = "brightness";
+        String contrastStr = "contrast";
+        String saturationStr = "saturation";
+        String gammaStr = "gamma";
+        String whiteBalanceStr = "SOMETHING";
+        String exposureStr = "exposure";
+
+        String setParam = "--set ";
+        cameraParameters = setParam + brightnessStr + "=" + brightnessVal;
+        cameraParameters = cameraParameters + " " + setParam + contrastStr + "=" + contrastVal;
+        cameraParameters = cameraParameters + " " + setParam + saturationStr + "=" + saturationVal;
+        cameraParameters = cameraParameters + " " + setParam + gammaStr + "=" + gammaVal;
+        cameraParameters = cameraParameters + " " + setParam + whiteBalanceStr + "=" + whiteBalanceVal;
+        cameraParameters = cameraParameters + " " + setParam + exposureStr + "=" + exposureVal;
+        return cameraParameters;
     }
 }
