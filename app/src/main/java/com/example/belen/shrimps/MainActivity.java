@@ -225,7 +225,9 @@ public class MainActivity extends Activity {
 
             }
             status = ftp.login(username, password);
-            //set timeout to 15 min
+            //send messages every 5 min to keep alive ftp connection
+            ftp.setControlKeepAliveTimeout(300);
+            //set file type and mode to receive and donwload
             ftp.setFileType(FTP.BINARY_FILE_TYPE);
             ftp.enterLocalPassiveMode();
 
