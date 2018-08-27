@@ -36,7 +36,8 @@
             android:name=".PhotoViewActivity"
             android:configChanges="orientation|screenSize" />
         <activity android:name=".ListImagesActivity" />
-        <activity android:name=".CameraActivity"></activity>
+        <activity android:name=".CameraActivity"
+            android:windowSoftInputMode="stateHidden"></activity>
     </application>
 
 </manifest>
