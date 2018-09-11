@@ -14,6 +14,7 @@ tools:context=".MainActivity">
         android:layout_marginLeft="25dp"
         android:gravity="center_horizontal|center_vertical">
 
+
         <Button
             android:id="@+id/btnTagImages"
             android:layout_width="match_parent"
@@ -23,19 +24,11 @@ tools:context=".MainActivity">
             android:background="@drawable/rounded_btn"
             android:visibility="visible" />
         <Button
-            android:id="@+id/btnListingImages"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="25dp"
-            android:text="Descargar imágenes"
-            android:background="@drawable/rounded_btn"
-            android:visibility="visible" />
-        <Button
             android:id="@+id/btnImages"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="25dp"
-            android:text="@string/label_menu_op"
+            android:text="Descargar imágenes"
             android:background="@drawable/rounded_btn"
             android:visibility="visible" />
         <Button

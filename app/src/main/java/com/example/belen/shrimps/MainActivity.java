@@ -34,7 +34,7 @@ import java.io.IOException;
 
 public class MainActivity extends Activity {
 
-    Button button, shutdown_button,restart_button, takephoto_button, listingimages_button, tagimages_button;
+    Button button, shutdown_button,restart_button, takephoto_button, tagimages_button;
     ImageView image;
     int port;
     static String username,password,server;
@@ -52,10 +52,8 @@ public class MainActivity extends Activity {
         addListenerOnButton();
         //botón para tomar foto
         takephoto_button = (Button) findViewById(R.id.btnTakePhoto);
-        listingimages_button = findViewById(R.id.btnListingImages);
         tagimages_button = findViewById(R.id.btnTagImages);
         setCameraOpListener();
-        setListingImagesListener();
         setTagImagesListener();
         shutdown_button = (Button) findViewById(R.id.btnTurnoffRasp);
         shutdown_button.setOnClickListener(new OnClickListener() {
@@ -177,15 +175,7 @@ public class MainActivity extends Activity {
         });
     }
 
-    public void setListingImagesListener(){
-        this.listingimages_button.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(getApplicationContext(), ListImagesActivity.class);
-                startActivity(intent);
-            }
-        });
-    }
+
     public void addListenerOnButton() {
         button.setOnClickListener(new OnClickListener() {
             @Override
@@ -269,13 +259,6 @@ public class MainActivity extends Activity {
             e.printStackTrace();
 
         }
-
-    }
-
-    
-    @Override
-    public void onRestoreInstanceState(Bundle savedInstanceState) {
-        super.onRestoreInstanceState(savedInstanceState);
 
     }
 

@@ -10,6 +10,7 @@ import android.graphics.PorterDuff;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
+import android.os.Environment;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
@@ -50,6 +51,7 @@ public class ListImagesActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        //Verifies that it is connnected to ftp server
         WifiManager wifiMgr = (WifiManager) this.getApplicationContext().getSystemService(Context.WIFI_SERVICE);
         WifiInfo wifiInfo = wifiMgr.getConnectionInfo();
         if(wifiInfo!=null){
@@ -67,6 +69,7 @@ public class ListImagesActivity extends AppCompatActivity {
             toast.show();
             this.finish();
         }
+        //end of verification
 
         setContentView(R.layout.activity_list_images);
         Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
@@ -94,33 +97,35 @@ public class ListImagesActivity extends AppCompatActivity {
                     if(thumb.isDownloaded()){
                         try {
                             System.out.println("Downloading");
-
                             //resize photo
                             DisplayMetrics displayMetrics = new DisplayMetrics();
                             getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
                             int new_width = displayMetrics.widthPixels;
                             //read from server
-                            if(!MainActivity.status){
-                                MainActivity.status = MainActivity.ftp.login(MainActivity.username, MainActivity.password);
-                            }
                             input = MainActivity.ftp.retrieveFileStream(filename);
                             BufferedInputStream buf = new BufferedInputStream(input);
                             Bitmap bitmap = BitmapFactory.decodeStream(buf);
                             Bitmap resized_bitmap = fillWidthScreen(new_width,480,640,480,bitmap); //was not before
                             //save it in internal memory
-                            File directory = v.getContext().getFilesDir();
-                            File photo = new File(directory,filename);
-                            FileOutputStream fos = new FileOutputStream(photo);
-                            bitmap.compress(Bitmap.CompressFormat.JPEG, 100 , fos);
-                            Toast.makeText(v.getContext(), "Descarga exitosa", Toast.LENGTH_SHORT).show();
-                            fos.close();
-                            input.close();
-                            if(!MainActivity.ftp.completePendingCommand()) {
-                                MainActivity.ftp.logout();
-                                MainActivity.ftp.disconnect();
-                                System.err.println("File transfer failed.");
-                                finish();
+                            File directory = ListImages.createFolder("Shrimps-images");
+                            if(directory!=null){
+                                File photo = new File(directory,filename);
+                                FileOutputStream fos = new FileOutputStream(photo);
+                                bitmap.compress(Bitmap.CompressFormat.JPEG, 100 , fos);
+                                Toast.makeText(v.getContext(), "Descarga exitosa", Toast.LENGTH_SHORT).show();
+                                fos.close();
+                                input.close();
+                                if(!MainActivity.ftp.completePendingCommand()) {
+                                    MainActivity.ftp.logout();
+                                    MainActivity.ftp.disconnect();
+                                    System.out.println("File transfer failed.");
+                                    finish();
+                                }
                             }
+                            else{
+                                Toast.makeText(v.getContext(), "Almacenamiento no disponible", Toast.LENGTH_SHORT).show();
+                            }
+
                         } catch (IOException e) {
                             e.printStackTrace();
                             Toast.makeText(v.getContext(), "Hubo un error con la foto"+filename, Toast.LENGTH_SHORT).show();

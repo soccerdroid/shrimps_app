@@ -123,7 +123,7 @@ public class PhotoActivity extends AppCompatActivity  {
                 try {
                     //String edited_image_name = "edited_"+name;
                     //File directory = v.getContext().getDir("edited", MODE_PRIVATE);
-                    File directory = v.getContext().getFilesDir();
+                    File directory = ListImages.createFolder("Shrimps-images");
                     File file = new File(directory, name);
                     outputStream = new FileOutputStream(file);
                     bitmap.compress(Bitmap.CompressFormat.JPEG, 100 , outputStream);

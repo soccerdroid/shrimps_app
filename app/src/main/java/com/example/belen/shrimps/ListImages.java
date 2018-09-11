@@ -8,6 +8,7 @@ import android.graphics.PorterDuff;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
+import android.os.Environment;
 import android.os.StrictMode;
 import android.os.Bundle;
 import android.util.Log;
@@ -15,23 +16,18 @@ import android.view.View;
 import android.content.Intent;
 import android.widget.*;
 import android.app.Activity;
-import android.widget.Button;
-import android.widget.ImageView;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import org.apache.commons.net.ftp.FTP;
-import org.apache.commons.net.ftp.FTPClient;
-import org.apache.commons.net.ftp.FTPFile;
-import org.apache.commons.net.ftp.FTPReply;
+
+
 
 public class ListImages extends Activity {
 
 
     static LinearLayout linlaHeaderProgress;
     static ProgressBar myProgressBar;
-    public static FTPClient ftp;
     static ArrayList<Thumbnail> thumbnails;
     static ArrayAdapter<Thumbnail> itemsAdapter;
     ListView listView;
@@ -57,7 +53,6 @@ public class ListImages extends Activity {
     static ArrayList<String> fetchImages(File directory) {
         //Function that fecthes images of a folder
         ArrayList<String> filenames = new ArrayList<>();
-        System.out.println("DIRECTORIO:"+directory.getAbsolutePath());
         File[] files = directory.listFiles();
 
         for (int i = 0; i < files.length; i++){
@@ -71,6 +66,28 @@ public class ListImages extends Activity {
         return filenames;
     }
 
+
+    static File createFolder(String albumName) {
+        // Get the directory for the user's public pictures directory.
+        if(isExternalStorageReadable() && isExternalStorageWritable()){
+            //File file = new File(Environment.getExternalStoragePublicDirectory(
+                    //Environment.DIRECTORY_PICTURES),"Shrimps-images");
+            String root = Environment.getExternalStorageDirectory().toString();
+            File myDir = new File(root +"/"+ albumName);
+            if (!myDir.exists()) {
+                myDir.mkdirs();
+                if (!myDir.mkdirs()) {
+                    System.out.println("No se puede crear carpeta "+root);
+                    return null;
+                }
+            }
+
+            System.out.println("Created or existing folder");
+            return myDir;
+        }
+        System.out.println("No se puede acceder al almacenamiento externo");
+        return null;
+    }
 
     @SuppressLint("StaticFieldLeak")
     static void fillDownloadedImages(final Context context) {
@@ -87,14 +104,17 @@ public class ListImages extends Activity {
             }
 
             protected Void doInBackground(Void... params) {
-                File directory  = context.getFilesDir();
-                ArrayList<String> files = fetchImages(directory);
-                for (int i = 0; i < files.size(); i++) {
-                    Thumbnail thumbnail = new Thumbnail(files.get(i));
-                    thumbnails.add(thumbnail);
-                    System.out.println("FILENAME: " + thumbnail.getName());
+                File directory = createFolder("Shrimps-images");
+                if(directory!=null){
+                    ArrayList<String> files = fetchImages(directory);
+                    for (int i = 0; i < files.size(); i++) {
+                        Thumbnail thumbnail = new Thumbnail(files.get(i));
+                        thumbnails.add(thumbnail);
+                        System.out.println("FILENAME: " + thumbnail.getName());
 
+                    }
                 }
+
                 return null;
             }
 
@@ -106,7 +126,29 @@ public class ListImages extends Activity {
         }.execute();
     }
 
+    /* Checks if external storage is available for read and write */
+    static boolean isExternalStorageWritable() {
+        String state = Environment.getExternalStorageState();
+        if (Environment.MEDIA_MOUNTED.equals(state)) {
+            return true;
+        }
+        return false;
+    }
 
+    /* Checks if external storage is available to at least read */
+    static boolean isExternalStorageReadable() {
+        String state = Environment.getExternalStorageState();
+        if (Environment.MEDIA_MOUNTED.equals(state) ||
+                Environment.MEDIA_MOUNTED_READ_ONLY.equals(state)) {
+            return true;
+        }
+        return false;
+    }
+    @Override
+    public void onResume(){
+        super.onResume();
+        fillDownloadedImages(this);
+    }
 
 
 }
