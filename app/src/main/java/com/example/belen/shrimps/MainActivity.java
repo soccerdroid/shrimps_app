@@ -30,17 +30,17 @@ import org.apache.commons.net.ftp.FTPReply;
 
 import java.io.IOException;
 
-import static com.example.belen.shrimps.ListImages.server;
 
 
 public class MainActivity extends Activity {
 
-    Button button, shutdown_button,restart_button, takephoto_button;
+    Button button, shutdown_button,restart_button, takephoto_button, listingimages_button, tagimages_button;
     ImageView image;
     int port;
-    static String username,password;
-    public static FTPClient ftp;
+    static String username,password,server;
+    static FTPClient ftp;
     static boolean status;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
@@ -52,36 +52,11 @@ public class MainActivity extends Activity {
         addListenerOnButton();
         //botón para tomar foto
         takephoto_button = (Button) findViewById(R.id.btnTakePhoto);
+        listingimages_button = findViewById(R.id.btnListingImages);
+        tagimages_button = findViewById(R.id.btnTagImages);
         setCameraOpListener();
-        /*takephoto_button.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(final View arg0) {
-                if(ftp!=null && ftp.isConnected()) {
-                    arg0.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            Toast.makeText(arg0.getContext(), "Tomando foto...", Toast.LENGTH_SHORT).show();
-
-                        }
-                    });
-                    try {
-                        SocketConnection socket = new SocketConnection();
-                        String photo_name = socket.takePhoto(); // was not before
-                        socket.closeConnection();
-                        Intent intent = new Intent(arg0.getContext(), PhotoViewActivity.class); // was not before
-                        intent.putExtra("photo_name",photo_name ); // was not before
-                        arg0.getContext().startActivity(intent); // was not before
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-                else{
-                    Toast.makeText(arg0.getContext(), "No hay conexión con el servidor aún", Toast.LENGTH_SHORT).show();
-                }
-
-        }
-        });*/
-        //apagar la raspberry
+        setListingImagesListener();
+        setTagImagesListener();
         shutdown_button = (Button) findViewById(R.id.btnTurnoffRasp);
         shutdown_button.setOnClickListener(new OnClickListener() {
             @Override
@@ -192,7 +167,25 @@ public class MainActivity extends Activity {
         });
     }
 
+    public void setTagImagesListener(){
+        this.tagimages_button.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getApplicationContext(), ListImages.class);
+                startActivity(intent);
+            }
+        });
+    }
 
+    public void setListingImagesListener(){
+        this.listingimages_button.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getApplicationContext(), ListImagesActivity.class);
+                startActivity(intent);
+            }
+        });
+    }
     public void addListenerOnButton() {
         button.setOnClickListener(new OnClickListener() {
             @Override
@@ -283,14 +276,6 @@ public class MainActivity extends Activity {
     @Override
     public void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
-        /*// Restore UI state from the savedInstanceState.
-        // This bundle has also been passed to onCreate.
-        ftp = PhotoActivity.ftp;
-        ArrayList<String> thumbnails_stringify = savedInstanceState.getStringArrayList("ThumbnailsList");
-        for (String thumb_string: thumbnails_stringify){
-            thumbnails.add(Thumbnail.restore(thumb_string));
-        }
-*/
 
     }
 

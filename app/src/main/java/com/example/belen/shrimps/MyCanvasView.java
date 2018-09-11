@@ -70,9 +70,9 @@ public class MyCanvasView extends View implements OnTouchListener {
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
         if(this.im!=null) {
-            mCanvas = new Canvas(this.im); //was not before
+            mCanvas = new Canvas(this.im);
         }
-        System.out.println("ENTRE AL ONSIZECHANGED");
+
     }
 
     @Override
@@ -82,21 +82,19 @@ public class MyCanvasView extends View implements OnTouchListener {
         if(this.im!= null ){
             System.out.println("ESTOY DIBUJANDO EL BITMAP");
             canvas.drawBitmap(this.im, 0, 0, canvasPaint);
-            //canvas.drawPath(mPath, mPaint); //was before
-            System.out.println("JUST BEFORE DRAWING PATHS");
-            for (Path p : paths){  //was not before
-                canvas.drawPath(p, mPaint);
-            }
+            canvas.drawPath(mPath,mPaint);
+            /*for (Path p: paths){
+                canvas.drawPath(p,mPaint);
+            }*/
         }
 
-        //canvas.drawPath(mPath, mPaint);
 
     }
 
-    private float mX, mY;
+    //private float mX, mY;
     private static final float TOUCH_TOLERANCE = 4;
 
-    private void touch_start(float x, float y) {
+    /*private void touch_start(float x, float y) {
         //mPath.reset(); //was before
         mPath.moveTo(x, y);
         mX = x;
@@ -121,28 +119,44 @@ public class MyCanvasView extends View implements OnTouchListener {
         mPath.reset();
 
 
+    }*/
+
+    @Override
+    public boolean onTouch(View arg0, MotionEvent event) {
+        float x = event.getX();
+        float y = event.getY();
+
+        switch (event.getAction()) {
+            case MotionEvent.ACTION_DOWN:
+                mPath.moveTo(x, y);
+                //invalidate();
+                break;
+            case MotionEvent.ACTION_MOVE:
+                mPath.lineTo(x, y);
+                //invalidate();
+                break;
+            case MotionEvent.ACTION_UP:
+                mCanvas.drawPath(mPath, mPaint);
+                mPath.reset();
+                break;
+            default:
+                return false;
+        }
+        invalidate();
+        return true;
     }
 
     public void onClickUndo () {
         System.out.println("TAMAÑO DE PATHS: "+paths.size());
-        /*if (paths.size()>0)
-        {
-            undonePaths.add(paths.remove(paths.size()-1));
-            invalidate();
-        }*/
-        //invalidate();
-        //mPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR)); //was not before
         if (paths.size() > 0) {
             // End current path
             invalidate();
-
             // Cancel the last one and redraw
             undonePaths.add(paths.get(paths.size() - 1));
             paths.remove(paths.size() - 1);
             invalidate();
-
-
         }
+
     }
 
     public void onClickRedo (){
@@ -163,29 +177,7 @@ public class MyCanvasView extends View implements OnTouchListener {
 
     }
 
-    @Override
-    public boolean onTouch(View arg0, MotionEvent event) {
-        float x = event.getX();
-        float y = event.getY();
 
-        switch (event.getAction()) {
-            case MotionEvent.ACTION_DOWN:
-                touch_start(x, y);
-                //invalidate();
-                break;
-            case MotionEvent.ACTION_MOVE:
-                touch_move(x, y);
-                //invalidate();
-                break;
-            case MotionEvent.ACTION_UP:
-                touch_up();
-                break;
-            default:
-                return false;
-        }
-        invalidate();
-        return true;
-    }
 
 
 

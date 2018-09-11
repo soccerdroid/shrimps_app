@@ -66,7 +66,7 @@ public class ThumbnailAdapter extends ArrayAdapter<Thumbnail>{
                     else{
                         thumbnail.setDownloaded(false);
                     }
-                    PageFragment.isSomethingChecked();
+                    ListImagesActivity.isSomethingChecked();
                 }
             });
 

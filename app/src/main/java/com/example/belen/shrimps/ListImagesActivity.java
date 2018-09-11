@@ -1,20 +1,33 @@
 package com.example.belen.shrimps;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.graphics.Matrix;
+import android.graphics.PorterDuff;
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
+import android.os.AsyncTask;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.LinearLayout;
+import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.Toast;
+
+import org.apache.commons.net.ftp.FTPFile;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
@@ -22,38 +35,60 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
 public class ListImagesActivity extends AppCompatActivity {
     static Button download_btn;
+    static LinearLayout linlaHeaderProgress;
+    static ProgressBar myProgressBar;
+    static ArrayList<Thumbnail> thumbnails;
+    static ArrayAdapter<Thumbnail> itemsAdapter;
+    ListView listView;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        WifiManager wifiMgr = (WifiManager) this.getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+        WifiInfo wifiInfo = wifiMgr.getConnectionInfo();
+        if(wifiInfo!=null){
+            String wifi_name = wifiInfo.getSSID();
+            if(wifi_name.equalsIgnoreCase("\"Pi_AP\"")==false || MainActivity.ftp==null){
+                CharSequence text = "No está conectado a la red de la raspberry";
+                Toast toast = Toast.makeText(this.getApplicationContext(), text, Toast.LENGTH_SHORT);
+                toast.show();
+                this.finish();
+            }
+
+        }
+        else {
+            Toast toast = Toast.makeText(this.getApplicationContext(), "No hay red wifi", Toast.LENGTH_SHORT);
+            toast.show();
+            this.finish();
+        }
+
         setContentView(R.layout.activity_list_images);
         Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
         setSupportActionBar(myToolbar);
-        //myToolbar.inflateMenu(R.menu.item);
-        //getSupportActionBar().setTitle("Imágenes");
-
         download_btn = findViewById(R.id.download_btn);
         addDownloadListener();
-        // Get the ViewPager and set it's PagerAdapter so that it can display items
-        ViewPager viewPager = (ViewPager) findViewById(R.id.viewpager);
-        viewPager.setAdapter(new SampleFragmentPagerAdapter(getSupportFragmentManager(),
-                this.getApplicationContext()));
+        thumbnails= new ArrayList<>();
+        this.listView = (ListView) findViewById(R.id.customListView);
 
-        // Give the TabLayout the ViewPager
-        TabLayout tabLayout = (TabLayout) findViewById(R.id.sliding_tabs);
-        tabLayout.setupWithViewPager(viewPager);
+        linlaHeaderProgress = (LinearLayout) findViewById(R.id.linlaHeaderProgress);
+        myProgressBar = findViewById(R.id.pBar);
+        this.itemsAdapter = new ThumbnailAdapter(this, 0, thumbnails,1);
+        this.listView.setAdapter(itemsAdapter);
+
+        connectAndFillList();
     }
     void addDownloadListener(){
 
         download_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                for(Thumbnail thumb: PageFragment.thumbnails){
-                    System.out.println("Reading");
+                for(Thumbnail thumb: thumbnails){
                     String filename = thumb.getName();
                     InputStream input = null;
                     if(thumb.isDownloaded()){
@@ -110,4 +145,77 @@ public class ListImagesActivity extends AppCompatActivity {
         Bitmap resized = Bitmap.createBitmap(bm, 0, 0, width, height, matrix, false);
         return resized;
     }
+
+    @SuppressLint("StaticFieldLeak")
+    private void connectAndFillList() {
+
+        new AsyncTask<Void, Void, Void>() {
+
+            protected void onPreExecute() {
+                // TODO Auto-generated method stub
+                super.onPreExecute();
+                int color = Color.parseColor("#007DD6");
+                myProgressBar.getIndeterminateDrawable()
+                        .setColorFilter(color, PorterDuff.Mode.SRC_IN);
+                linlaHeaderProgress.setVisibility(View.VISIBLE);
+            }
+
+            protected Void doInBackground(Void... params) {
+
+                try {
+
+                    int reply;
+                    int it =1;
+                    FTPFile[] files = MainActivity.ftp.listFiles();
+                    System.out.println("NUMERO DE ELEMENTOS: " + files.length);
+                    for (int i = 0; i < files.length; i++) {
+                        //for (FTPFile file: files){
+                        if(files[i].isFile()){
+                            String filename = files[i].getName();
+                            Thumbnail thumbnail = new Thumbnail(filename);
+                            thumbnails.add(thumbnail);
+                            System.out.println("FILENAME: " + filename);
+                            System.out.println("Iteracion: " + it);
+                            it += 1;
+                        }
+
+                    }
+
+                }
+                catch (IOException e)
+                {
+                    Log.d("ERROR","Could not connect to host");
+                    e.printStackTrace();
+                }
+
+                return null;
+            }
+
+            protected void onPostExecute(Void result) {
+                System.out.println("ESTOY EN ON POST EXECUTE");
+                itemsAdapter.notifyDataSetChanged();
+                // HIDE THE SPINNER AFTER LOADING FEEDS
+                linlaHeaderProgress.setVisibility(View.GONE);
+            }
+        }.execute();
+
+    }
+    static void isSomethingChecked(){
+
+        for(Thumbnail thumb:thumbnails){
+            if (thumb.isDownloaded()){
+                download_btn.setVisibility(View.VISIBLE);
+                return;
+            }
+        }
+
+        download_btn.setVisibility(View.INVISIBLE);
+    }
+
+    @Override
+    public void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        connectAndFillList();
+    }
+
 }

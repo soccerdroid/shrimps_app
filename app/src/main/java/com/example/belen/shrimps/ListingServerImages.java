@@ -9,6 +9,7 @@ import android.graphics.PorterDuff;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -24,7 +25,7 @@ import org.apache.commons.net.ftp.FTPFile;
 import java.io.IOException;
 import java.util.ArrayList;
 
-public class PageFragment extends Fragment {
+public class ListingServerImages extends AppCompatActivity {
 
 
     static LinearLayout linlaHeaderProgress;
@@ -35,30 +36,22 @@ public class PageFragment extends Fragment {
 
 
 
-
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         thumbnails= new ArrayList<>();
+        setContentView(R.layout.activity_listimages);
+        this.listView = (ListView) findViewById(R.id.customListView);
 
-    }
-
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.activity_listimages, container, false);
-
-        this.listView = (ListView) view.findViewById(R.id.customListView);
-
-        linlaHeaderProgress = (LinearLayout) view.findViewById(R.id.linlaHeaderProgress);
-        myProgressBar = view.findViewById(R.id.pBar);
-        this.itemsAdapter = new ThumbnailAdapter(view.getContext(), 0, thumbnails,1);
+        linlaHeaderProgress = (LinearLayout) findViewById(R.id.linlaHeaderProgress);
+        myProgressBar = findViewById(R.id.pBar);
+        this.itemsAdapter = new ThumbnailAdapter(this, 0, thumbnails,1);
         this.listView.setAdapter(itemsAdapter);
 
         connectAndFillList();
 
-        return view;
     }
+
 
     @SuppressLint("StaticFieldLeak")
     private void connectAndFillList() {
@@ -116,7 +109,7 @@ public class PageFragment extends Fragment {
     }
 
 
-    static void isSomethingChecked(){
+   /* static void isSomethingChecked(){
 
         for(Thumbnail thumb:thumbnails){
             if (thumb.isDownloaded()){
@@ -126,7 +119,7 @@ public class PageFragment extends Fragment {
         }
 
         ListImagesActivity.download_btn.setVisibility(View.INVISIBLE);
-    }
+    }*/
 
 
 

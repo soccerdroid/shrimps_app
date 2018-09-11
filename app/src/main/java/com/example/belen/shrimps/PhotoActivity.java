@@ -34,7 +34,7 @@ public class PhotoActivity extends AppCompatActivity  {
     Toast toast;
     public static FTPClient ftp;
     TextView thumbnail_name;
-    Button backBtn, saveBtn;
+    Button saveBtn, undoBtn;
     Spinner spinner;
     public static MyCanvasView myCanvasView;
     String name;
@@ -52,12 +52,12 @@ public class PhotoActivity extends AppCompatActivity  {
         //Get passed file name
         name = (String) b.get("name");
         thumbnail_name = findViewById(R.id.thumbnail_name_tv);
-        backBtn = findViewById(R.id.back_btn);
         saveBtn = findViewById(R.id.save_btn);
+        undoBtn = findViewById(R.id.undoBtn);
         thumbnail_name.setText(name);
         this.ftp = MainActivity.ftp;
-        addListenerOnButton();
         addSaveListener();
+        addUndoListener();
         spinner = (Spinner) findViewById(R.id.palette_spinner);
         spinner.setOnItemSelectedListener(new MySpinnerListener());
         Bitmap bitmap = null;
@@ -92,12 +92,13 @@ public class PhotoActivity extends AppCompatActivity  {
         return resized;
     }
 
+
     //Adds a listener to the backBtn button
-    public void addListenerOnButton(){
-        this.backBtn.setOnClickListener(new View.OnClickListener() {
+    public void addUndoListener(){
+        this.undoBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                finish();
+                myCanvasView.onClickUndo();
             }
         });
 
@@ -109,16 +110,6 @@ public class PhotoActivity extends AppCompatActivity  {
         this.saveBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(final View v) {
-                /*v.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        showToast(v.getContext());
-                    }
-                    private void showToast(Context context) {
-
-                    }
-
-                });*/
 
                 myCanvasView.setDrawingCacheEnabled(true);
                 myCanvasView.setDrawingCacheQuality(myCanvasView.DRAWING_CACHE_QUALITY_HIGH);
