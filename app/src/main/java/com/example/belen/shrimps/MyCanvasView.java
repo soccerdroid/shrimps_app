@@ -10,18 +10,22 @@ import android.graphics.Path;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.util.AttributeSet;
+import android.util.DisplayMetrics;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.view.View.OnTouchListener;
 
 public class MyCanvasView extends View implements OnTouchListener {
+
     private Canvas  mCanvas; //drawCanvas
     private Path    mPath; //drawPath
     private Paint       mPaint,canvasPaint; //drawPaint
-    private ArrayList<Path> paths = new ArrayList<>();
-    private ArrayList<Path> undonePaths = new ArrayList<>();
+    private ArrayList<FingerPath> paths = new ArrayList<>();
+    private ArrayList<FingerPath> undonePaths = new ArrayList<>();
     public Bitmap im; //canvasBitmap
+    public Bitmap backupBitmap;
+    public float mX,mY;
 
     //private ScaleGestureDetector scaleDetector; //not before
     //private float scaleFactor = 1.f; //
@@ -63,7 +67,6 @@ public class MyCanvasView extends View implements OnTouchListener {
         mPaint.setStrokeWidth(6);
         mPath = new Path();
         canvasPaint = new Paint(Paint.DITHER_FLAG);
-        paths.add(mPath);
     }
 
     @Override
@@ -82,10 +85,12 @@ public class MyCanvasView extends View implements OnTouchListener {
         if(this.im!= null ){
             System.out.println("ESTOY DIBUJANDO EL BITMAP");
             canvas.drawBitmap(this.im, 0, 0, canvasPaint);
-            canvas.drawPath(mPath,mPaint);
-            /*for (Path p: paths){
-                canvas.drawPath(p,mPaint);
-            }*/
+            //canvas.drawPath(mPath,mPaint);
+            for (FingerPath p: paths){
+                mPaint.setColor(p.color);
+                mPaint.setStrokeWidth(p.strokeWidth);
+                canvas.drawPath(p.path,mPaint);
+            }
         }
 
 
@@ -94,11 +99,17 @@ public class MyCanvasView extends View implements OnTouchListener {
     //private float mX, mY;
     private static final float TOUCH_TOLERANCE = 4;
 
-    /*private void touch_start(float x, float y) {
+    private void touch_start(float x, float y) {
         //mPath.reset(); //was before
+        mPath = new Path();
+        FingerPath fp = new FingerPath(mPaint.getColor(),6, mPath);
+        paths.add(fp);
+
+        mPath.reset();
         mPath.moveTo(x, y);
         mX = x;
         mY = y;
+
     }
     private void touch_move(float x, float y) {
         float dx = Math.abs(x - mX);
@@ -112,32 +123,23 @@ public class MyCanvasView extends View implements OnTouchListener {
     private void touch_up() {
         mPath.lineTo(mX, mY);
         // commit the path to our offscreen
-        mCanvas.drawPath(mPath, mPaint);
-        // kill this so we don't double draw
-        paths.add(mPath);
-        System.out.println(mPath.toString());
-        mPath.reset();
 
 
-    }*/
+    }
 
     @Override
     public boolean onTouch(View arg0, MotionEvent event) {
         float x = event.getX();
         float y = event.getY();
-
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
-                mPath.moveTo(x, y);
-                //invalidate();
+             touch_start(x,y);
                 break;
             case MotionEvent.ACTION_MOVE:
-                mPath.lineTo(x, y);
-                //invalidate();
+                touch_move(x, y);
                 break;
             case MotionEvent.ACTION_UP:
-                mCanvas.drawPath(mPath, mPaint);
-                mPath.reset();
+               touch_up();
                 break;
             default:
                 return false;
@@ -150,7 +152,6 @@ public class MyCanvasView extends View implements OnTouchListener {
         System.out.println("TAMAÑO DE PATHS: "+paths.size());
         if (paths.size() > 0) {
             // End current path
-            invalidate();
             // Cancel the last one and redraw
             undonePaths.add(paths.get(paths.size() - 1));
             paths.remove(paths.size() - 1);
@@ -167,16 +168,15 @@ public class MyCanvasView extends View implements OnTouchListener {
     public void setBitmap(Bitmap im){
         Bitmap mutableBitmap = im.copy(Bitmap.Config.ARGB_8888, true);
         this.im = mutableBitmap;
-
     }
+
     public void setColor(String newColor){
     //set color
-        invalidate();
         int paintColor = Color.parseColor(newColor);
         this.mPaint.setColor(paintColor);
 
-    }
 
+    }
 
 
 

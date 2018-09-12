@@ -72,7 +72,7 @@ public class PhotoActivity extends AppCompatActivity  {
             int height = displayMetrics.heightPixels;
             int new_width = displayMetrics.widthPixels;
             Bitmap resized_bitmap = fillWidthScreen(new_width,480,640,480,bitmap); //was not before
-            myCanvasView.setBitmap(resized_bitmap); //was not before
+            myCanvasView.setBitmap(resized_bitmap);
             buf.close();
             input.close();
 

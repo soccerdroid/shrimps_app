@@ -109,15 +109,14 @@ public class MainActivity extends Activity {
         WifiInfo wifiInfo = wifiMgr.getConnectionInfo();
         if(wifiInfo!=null){
             String wifi_name = wifiInfo.getSSID();
-            if(wifi_name.equalsIgnoreCase("\"Pi_AP\"")){
-                connectToFTPAsync(this);
-            }
-            else {
+            if(wifi_name.equalsIgnoreCase("\"Pi_AP\"") == false){
+                //connectToFTPAsync(this);
                 CharSequence text = "No está conectado a la red de la raspberry";
                 int duration = Toast.LENGTH_SHORT;
                 Toast toast = Toast.makeText(this.getApplicationContext(), text, duration);
                 toast.show();
             }
+
         }
         else {
             Toast toast = Toast.makeText(this.getApplicationContext(), "No hay red wifi", Toast.LENGTH_SHORT);
