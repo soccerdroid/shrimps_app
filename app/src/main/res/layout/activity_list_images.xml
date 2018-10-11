@@ -15,7 +15,13 @@
         app:titleTextColor="#FFFFFF"
         app:title="Imágenes"
         android:theme="@style/AppTheme">
-
+        <Button
+            android:id="@+id/erase_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Borrar"
+            android:layout_gravity="right"
+            android:visibility="invisible"/>
     <Button
         android:id="@+id/download_btn"
         android:layout_width="wrap_content"

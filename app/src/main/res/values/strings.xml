@@ -19,12 +19,12 @@
     <string name="restart_rasp_btn">Reiniciar\nRaspberry</string>
     <string name="take_photo_btn">Tomar foto</string>
 
-    <string name="brightness_config">Brillo</string>
-    <string name="contrast_config">Contraste</string>
-    <string name="saturation_config">Saturación</string>
-    <string name="gamma_config">Gamma</string>
-    <string name="white_balance_config">Balance de blanco</string>
-    <string name="exposure_config">Exposición</string>
+    <string name="brightness_config">Brillo(64|-64)</string>
+    <string name="contrast_config">Contraste(0|30)</string>
+    <string name="saturation_config">Saturación(127|0)</string>
+    <string name="gamma_config">Gamma(250|20)</string>
+    <string name="white_balance_config">WB(6500|2800)</string>
+    <string name="exposure_config">Exposición(5000|0)</string>
     <string name="save_config_btn">Guardar cambios</string>
 
 

@@ -5,57 +5,65 @@
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
+    android:id="@+id/photo_activity_layout"
     tools:context=".PhotoActivity">
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:id="@+id/photo_activity_layout"
-        >
+
         <TextView
             android:id="@+id/thumbnail_name_tv"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="" />
 
         <LinearLayout
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="horizontal">
 
 
             <Spinner
                 android:id="@+id/palette_spinner"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:entries="@array/palette_array"/>
+                android:entries="@array/palette_array" />
 
-            <Button
+            <ImageButton
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:id="@+id/undoBtn"
-                android:text="Borrar"/>
-
-        </LinearLayout>
-
-        <com.example.belen.shrimps.MyCanvasView
-            android:layout_width="wrap_content"
-            android:layout_height="480px"
-            android:id="@+id/my_canvas"
-            android:adjustViewBounds="true" />
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="horizontal">
-            <Button
+                android:text="Borrar"
+                android:src="@drawable/undo" />
+            <ImageButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/redoBtn"
+                android:src="@drawable/redo" />
+            <ImageButton
                 android:id="@+id/save_btn"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Guardar" />
+                android:text="Guardar"
+                android:src="@drawable/save"/>
+
+            <ImageButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/zoomBtn"
+                android:src="@drawable/move" />
+
+
+
+
         </LinearLayout>
 
-    </LinearLayout>
+        <com.example.belen.shrimps.MyCanvasView
+            android:id="@+id/my_canvas"
+            android:layout_width="wrap_content"
+            android:layout_height="480px"
+            android:adjustViewBounds="true" />
+
+
+
+
 </LinearLayout>

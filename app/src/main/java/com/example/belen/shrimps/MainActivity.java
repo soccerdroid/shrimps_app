@@ -40,6 +40,8 @@ public class MainActivity extends Activity {
     static String username,password,server;
     static FTPClient ftp;
     static boolean status;
+    static TextView status_tv;
+    LinearLayout pBarContainer;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -50,6 +52,8 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_main);
         button = (Button) findViewById(R.id.btnImages);
         addListenerOnButton();
+        status_tv = findViewById(R.id.status_tv);
+        pBarContainer = findViewById(R.id.connectionpBarContainer);
         //botón para tomar foto
         takephoto_button = (Button) findViewById(R.id.btnTakePhoto);
         tagimages_button = findViewById(R.id.btnTagImages);
@@ -73,6 +77,8 @@ public class MainActivity extends Activity {
                     SocketConnection socket = new SocketConnection();
                     socket.shutdownPi();
                     socket.closeConnection();
+                    status_tv.setTextColor(getResources().getColor(R.color.opaque_orange));
+                    status_tv.setText("Desconectado");
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -109,6 +115,7 @@ public class MainActivity extends Activity {
         WifiInfo wifiInfo = wifiMgr.getConnectionInfo();
         if(wifiInfo!=null){
             String wifi_name = wifiInfo.getSSID();
+
             if(wifi_name.equalsIgnoreCase("\"Pi_AP\"") == false){
                 //connectToFTPAsync(this);
                 CharSequence text = "No está conectado a la red de la raspberry";
@@ -205,6 +212,10 @@ public class MainActivity extends Activity {
                 activity.runOnUiThread(new Runnable() {
                     public void run() {
                         Toast.makeText(activity.getApplicationContext(), "Estableciendo conexión con servidor...", Toast.LENGTH_SHORT).show();
+                        //change status text and color
+                        status_tv.setTextColor(getResources().getColor(R.color.darkGrey));
+                        status_tv.setText("Estableciendo conexión...");
+                        pBarContainer.setVisibility(View.VISIBLE);
                     }
                 });
 
@@ -213,7 +224,7 @@ public class MainActivity extends Activity {
             }
 
             protected void onPostExecute(Void result) {
-
+                pBarContainer.setVisibility(View.GONE);
             }
         }.execute();
 
@@ -237,6 +248,8 @@ public class MainActivity extends Activity {
 
             if (!FTPReply.isPositiveCompletion(reply)) {
                 ftp.disconnect();
+                status_tv.setTextColor(getResources().getColor(R.color.opaque_orange));
+                status_tv.setText("Desconectado");
                 Log.d("REPLY_ERROR", "FTP server refused connection.");
 
             }
@@ -248,19 +261,25 @@ public class MainActivity extends Activity {
             ftp.enterLocalPassiveMode();
             this.runOnUiThread(new Runnable() {
                 public void run() {
-                    Toast.makeText(getWindow().getDecorView().getRootView().getContext(), "Conectado", Toast.LENGTH_SHORT).show();
+                    //Toast.makeText(getWindow().getDecorView().getRootView().getContext(), "Conectado", Toast.LENGTH_SHORT).show();
+                    status_tv.setTextColor(getResources().getColor(R.color.connectedGreen));
+                    status_tv.setText("Conectado");
                 }
             });
         }
         catch (IOException e)
         {
-            Log.d("ERROR","Could not connect to host");
             e.printStackTrace();
-
+            status_tv.setTextColor(getResources().getColor(R.color.opaque_orange));
+            status_tv.setText("Desconectado");
         }
 
     }
 
+    @Override
+    public void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+    }
 
 
 

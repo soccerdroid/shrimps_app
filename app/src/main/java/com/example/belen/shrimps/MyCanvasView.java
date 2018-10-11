@@ -16,6 +16,8 @@ import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.view.View.OnTouchListener;
 
+import static android.view.MotionEvent.INVALID_POINTER_ID;
+
 public class MyCanvasView extends View implements OnTouchListener {
 
     private Canvas  mCanvas; //drawCanvas
@@ -26,6 +28,18 @@ public class MyCanvasView extends View implements OnTouchListener {
     public Bitmap im; //canvasBitmap
     public Bitmap backupBitmap;
     public float mX,mY;
+    private float mLastTouchX;
+    private float mLastTouchY;
+    //for zooming
+    private int mActivePointerId = INVALID_POINTER_ID;
+    private ScaleGestureDetector mScaleDetector;
+    private float mScaleFactor = 1.f;
+    private float mScaleX,mScaleY;
+    private float mPosX;
+    private float mPosY;
+    boolean zoomStatus;
+
+
 
     //private ScaleGestureDetector scaleDetector; //not before
     //private float scaleFactor = 1.f; //
@@ -39,8 +53,9 @@ public class MyCanvasView extends View implements OnTouchListener {
         this.setOnTouchListener(this);
         setupDrawing();
         mCanvas = new Canvas();
-        //scaleDetector = new ScaleGestureDetector(context, new ScaleListener());
-        //paths.add(this.mPath); //was not before
+        //for zooming
+        mScaleDetector = new ScaleGestureDetector(context, new ScaleListener());
+        this.zoomStatus = false;
 
     }
 
@@ -53,7 +68,9 @@ public class MyCanvasView extends View implements OnTouchListener {
         setupDrawing();
         mCanvas = new Canvas();
         this.im = bitmap;
-
+        //for zoming
+        mScaleDetector = new ScaleGestureDetector(context, new ScaleListener());
+        this.zoomStatus = false;
     }
 
     public void setupDrawing(){
@@ -82,8 +99,11 @@ public class MyCanvasView extends View implements OnTouchListener {
     protected void onDraw(Canvas canvas) {
         //super.onDraw(canvas);
         //canvas.scale(scaleFactor, scaleFactor);
+        canvas.save();
         if(this.im!= null ){
-            System.out.println("ESTOY DIBUJANDO EL BITMAP");
+            canvas.translate(mPosX, mPosY);
+            System.out.println("POSICIONES DE ESCALA "+ mPosX+" "+mPosY);
+            canvas.scale(mScaleFactor, mScaleFactor);
             canvas.drawBitmap(this.im, 0, 0, canvasPaint);
             //canvas.drawPath(mPath,mPaint);
             for (FingerPath p: paths){
@@ -92,6 +112,7 @@ public class MyCanvasView extends View implements OnTouchListener {
                 canvas.drawPath(p.path,mPaint);
             }
         }
+        canvas.restore();
 
 
     }
@@ -129,28 +150,105 @@ public class MyCanvasView extends View implements OnTouchListener {
 
     @Override
     public boolean onTouch(View arg0, MotionEvent event) {
-        float x = event.getX();
-        float y = event.getY();
-        switch (event.getAction()) {
-            case MotionEvent.ACTION_DOWN:
-             touch_start(x,y);
-                break;
-            case MotionEvent.ACTION_MOVE:
-                touch_move(x, y);
-                break;
-            case MotionEvent.ACTION_UP:
-               touch_up();
-                break;
-            default:
-                return false;
+        mScaleDetector.onTouchEvent(event);
+        if(this.zoomStatus){
+            final int action = event.getAction();
+            switch (action & MotionEvent.ACTION_MASK) {
+                case MotionEvent.ACTION_DOWN: {
+                    final float x = event.getX();
+                    final float y = event.getY();
+
+                    mLastTouchX = x;
+                    mLastTouchY = y;
+                    mActivePointerId = event.getPointerId(0);
+                    break;
+                }
+
+                case MotionEvent.ACTION_MOVE: {
+                    final int pointerIndex = event.findPointerIndex(mActivePointerId);
+                    final float x = event.getX(pointerIndex);
+                    final float y = event.getY(pointerIndex);
+
+                    // Only move if the ScaleGestureDetector isn't processing a gesture.
+                    if (!mScaleDetector.isInProgress()) {
+                        final float dx = x - mLastTouchX;
+                        final float dy = y - mLastTouchY;
+
+                        mPosX += dx;
+                        mPosY += dy;
+
+                        invalidate();
+                    }
+
+                    mLastTouchX = x;
+                    mLastTouchY = y;
+
+                    break;
+                }
+
+                case MotionEvent.ACTION_UP: {
+                    mActivePointerId = INVALID_POINTER_ID;
+                    break;
+                }
+
+                case MotionEvent.ACTION_CANCEL: {
+                    mActivePointerId = INVALID_POINTER_ID;
+                    break;
+                }
+
+                case MotionEvent.ACTION_POINTER_UP: {
+                    final int pointerIndex = (event.getAction() & MotionEvent.ACTION_POINTER_INDEX_MASK)
+                            >> MotionEvent.ACTION_POINTER_INDEX_SHIFT;
+                    final int pointerId = event.getPointerId(pointerIndex);
+                    if (pointerId == mActivePointerId) {
+                        // This was our active pointer going up. Choose a new
+                        // active pointer and adjust accordingly.
+                        final int newPointerIndex = pointerIndex == 0 ? 1 : 0;
+                        mLastTouchX = event.getX(newPointerIndex);
+                        mLastTouchY = event.getY(newPointerIndex);
+                        mActivePointerId = event.getPointerId(newPointerIndex);
+                    }
+                    break;
+                }
+            }
+
+            return true;
+
         }
-        invalidate();
-        return true;
+        else {
+            float x = event.getX();
+            float y = event.getY();
+            //float x0=x-mScaleX;
+            //float y0=y-mScaleY;
+            //x0=x0*mScaleFactor;
+            //y0=y0*mScaleFactor;
+            //x0+=mScaleX;
+            //y0+=mScaleY;
+            //System.out.println("Pixel coordinates "+ x0+" "+y0);
+            System.out.println("touch co-ordinates "+ x+" "+y);
+            System.out.println("pivot points "+ mScaleX+" "+mScaleY);
+            System.out.println("Scalefactor "+ Float.toString(mScaleFactor));
+            switch (event.getAction()) {
+                case MotionEvent.ACTION_DOWN:
+                    touch_start(x, y);
+                    break;
+                case MotionEvent.ACTION_MOVE:
+                    touch_move(x, y);
+                    break;
+                case MotionEvent.ACTION_UP:
+                    touch_up();
+                    break;
+                default:
+                    return false;
+            }
+            invalidate();
+            return true;
+        }
     }
 
-    public void onClickUndo () {
-        System.out.println("TAMAÑO DE PATHS: "+paths.size());
-        if (paths.size() > 0) {
+    public void onClickUndo(){
+        if (paths.size() > 0){
+            System.out.println("undooooo");
             // End current path
             // Cancel the last one and redraw
             undonePaths.add(paths.get(paths.size() - 1));
@@ -160,10 +258,17 @@ public class MyCanvasView extends View implements OnTouchListener {
 
     }
 
-    public void onClickRedo (){
-
+    public void onClickRedo(){
+        if (undonePaths.size() > 0){
+            // End current path
+            // Cancel the last one and redraw
+            paths.add(undonePaths.get(undonePaths.size() - 1));
+            undonePaths.remove(undonePaths.size() - 1);
+            invalidate();
+        }
 
     }
+
 
     public void setBitmap(Bitmap im){
         Bitmap mutableBitmap = im.copy(Bitmap.Config.ARGB_8888, true);
@@ -178,7 +283,22 @@ public class MyCanvasView extends View implements OnTouchListener {
 
     }
 
+    private class ScaleListener extends ScaleGestureDetector.SimpleOnScaleGestureListener {
+        @Override
+        public boolean onScale(ScaleGestureDetector detector) {
+            mScaleFactor *= detector.getScaleFactor();
+            mScaleX=detector.getFocusX();
+            mScaleY=detector.getFocusY();
+            // Don't let the object get too small or too large.
+            mScaleFactor = Math.max(1.f, Math.min(mScaleFactor, 5.0f));
+            System.out.println("FACTOR: "+mScaleFactor);
+            invalidate();
+            return true;
+        }
+    }
 
-
+    public void setZoomStatus(boolean status){
+        this.zoomStatus = status;
+    }
 
 }

@@ -31,11 +31,13 @@ public class ListImages extends Activity {
     static ArrayList<Thumbnail> thumbnails;
     static ArrayAdapter<Thumbnail> itemsAdapter;
     ListView listView;
+    Context context;
 
 
         @Override
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
+            this.context = this;
             thumbnails= new ArrayList<>();
             setContentView(R.layout.activity_list_images);
             this.listView = (ListView) findViewById(R.id.customListView);
@@ -44,9 +46,6 @@ public class ListImages extends Activity {
             this.itemsAdapter = new ThumbnailAdapter(this,0,thumbnails,2);
             this.listView.setAdapter(itemsAdapter);
             fillDownloadedImages(this);
-
-
-
         }
 
 
@@ -54,9 +53,7 @@ public class ListImages extends Activity {
         //Function that fecthes images of a folder
         ArrayList<String> filenames = new ArrayList<>();
         File[] files = directory.listFiles();
-
         for (int i = 0; i < files.length; i++){
-
             String file_name = files[i].getName();
             if (file_name.contains(".jpg")){
                 filenames.add(file_name);}
@@ -147,8 +144,12 @@ public class ListImages extends Activity {
     @Override
     public void onResume(){
         super.onResume();
-        fillDownloadedImages(this);
+        //fillDownloadedImages(this);
     }
 
-
+    @Override
+    public void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        fillDownloadedImages(this.context);
+    }
 }

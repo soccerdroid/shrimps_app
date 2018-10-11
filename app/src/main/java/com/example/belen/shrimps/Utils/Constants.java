@@ -16,4 +16,11 @@ public class Constants {
     public static final int GAMMA_DEFAULT_VALUE = 100;
     public static final int WHITE_BALANCE_DEFAULT_VALUE = 5000;
     public static final int EXPOSURE_DEFAULT_VALUE = 312;
+
+    public  static final String color0 = "#ffdb99";
+    public  static final String color1 = "#FFFFEB3B";
+    public  static final String color2 = "#a8d9e7";
+    public  static final String color3 = "#ff7400";
+    public  static final String color4 = "#FF00FF";
+
 }

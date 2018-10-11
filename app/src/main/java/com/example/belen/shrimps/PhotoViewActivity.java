@@ -20,7 +20,7 @@ import java.io.InputStream;
 
 public class PhotoViewActivity extends AppCompatActivity {
     String photo_name;
-    Button backBtn;
+    //Button backBtn;
     public static FTPClient ftp;
     ImageView photo_iv;
     @SuppressLint("ClickableViewAccessibility")
@@ -33,22 +33,19 @@ public class PhotoViewActivity extends AppCompatActivity {
         Bundle b = getIntent().getExtras();
         //Get passed file name
         photo_name = (String) b.get("photo_name");
-        System.out.println("NOMBRE DE IMAGEN RECIBIDO: "+photo_name);
-        System.out.println("TAMAÑO DE IMAGEN RECIBIDO: "+photo_name.length());
-        backBtn = findViewById(R.id.back_btn);
+        //backBtn = findViewById(R.id.back_btn);
         photo_iv = findViewById(R.id.photo_iv);
-        addListenerOnButton();
+        //addListenerOnButton();
         Bitmap bitmap = null;
 
 
         try {
             //si no hay conexión con el servidor...
             if(MainActivity.ftp==null || !MainActivity.ftp.isConnected()){
-                Toast.makeText(this.getApplicationContext(), "Error recibiendo foto del servidor", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this.getApplicationContext(), "No hay conexión con el servidor", Toast.LENGTH_SHORT).show();
                 this.finish();
             }
             //caso contrario
-            System.out.println("INTENTANDO RECUPERAR IMAGEN: "+photo_name);
             InputStream input = MainActivity.ftp.retrieveFileStream(photo_name);
             BufferedInputStream buf = new BufferedInputStream(input);
             bitmap = BitmapFactory.decodeStream(buf);
@@ -62,7 +59,6 @@ public class PhotoViewActivity extends AppCompatActivity {
             if(!MainActivity.ftp.completePendingCommand()) {
                 MainActivity.ftp.logout();
                 MainActivity.ftp.disconnect();
-                System.err.println("File transfer failed.");
             }
 
         } catch (IOException e) {
@@ -72,7 +68,7 @@ public class PhotoViewActivity extends AppCompatActivity {
     }
 
     //Adds a listener to the backBtn button
-    public void addListenerOnButton(){
+    /*public void addListenerOnButton(){
         this.backBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -80,7 +76,7 @@ public class PhotoViewActivity extends AppCompatActivity {
             }
         });
 
-    }
+    }*/
 
     public Bitmap fillWidthScreen(int newWidth, int newHeight, int width, int height, Bitmap bm){
         float scaleWidth = ((float) newWidth) / width;

@@ -1,51 +1,55 @@
 package com.example.belen.shrimps;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
+import android.app.Dialog;
 import android.content.Context;
-import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
-import android.graphics.Point;
+import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.view.View;
 import android.widget.Button;
-import android.widget.LinearLayout;
+import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.belen.shrimps.Utils.Constants;
+
 import org.apache.commons.net.ftp.FTPClient;
 import java.io.BufferedInputStream;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-
-import static java.security.AccessController.getContext;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 public class PhotoActivity extends AppCompatActivity  {
 
     Toast toast;
     public static FTPClient ftp;
     TextView thumbnail_name;
-    Button saveBtn, undoBtn;
+    ImageButton saveBtn,undoBtn, zoomBtn, redoBtn;
     Spinner spinner;
     public static MyCanvasView myCanvasView;
     String name;
+    Context context;
     Boolean notSaved = true;
-
+    ArrayList<ColorSpinnerElement> colorList;
+    ColorSpinnerAdapter colorSpinnerAdapter;
+    String newname;
     @SuppressLint("ClickableViewAccessibility")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
-        setRequestedOrientation (ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        context = this;
+        //setRequestedOrientation (ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         setContentView(R.layout.activity_photo_2);
         myCanvasView = (MyCanvasView)findViewById(R.id.my_canvas);
         Bundle b = getIntent().getExtras();
@@ -54,29 +58,39 @@ public class PhotoActivity extends AppCompatActivity  {
         thumbnail_name = findViewById(R.id.thumbnail_name_tv);
         saveBtn = findViewById(R.id.save_btn);
         undoBtn = findViewById(R.id.undoBtn);
+        zoomBtn = findViewById(R.id.zoomBtn);
+        redoBtn = findViewById(R.id.redoBtn);
         thumbnail_name.setText(name);
         this.ftp = MainActivity.ftp;
         addSaveListener();
         addUndoListener();
+        addZoomListener();
         spinner = (Spinner) findViewById(R.id.palette_spinner);
+        initColorList(); // fills the list to pass to the spinner adapter
+        colorSpinnerAdapter = new ColorSpinnerAdapter(this, this.colorList);
+        spinner.setAdapter(colorSpinnerAdapter);
         spinner.setOnItemSelectedListener(new MySpinnerListener());
+        addRedoListener();
         Bitmap bitmap = null;
 
 
         try {
-            InputStream input = openFileInput(name);
-            BufferedInputStream buf = new BufferedInputStream(input);
-            bitmap = BitmapFactory.decodeStream(buf);
+            //InputStream input = openFileInput(name);
+            //BufferedInputStream buf = new BufferedInputStream(input);
+            //bitmap = BitmapFactory.decodeStream(buf);
+            String root = Environment.getExternalStorageDirectory().toString();
+            File myDir = new File(root +"/"+ "Shrimps-images");
+            bitmap = BitmapFactory.decodeFile(myDir+"/"+name);
             DisplayMetrics displayMetrics = new DisplayMetrics();
             getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
-            int height = displayMetrics.heightPixels;
             int new_width = displayMetrics.widthPixels;
             Bitmap resized_bitmap = fillWidthScreen(new_width,480,640,480,bitmap); //was not before
             myCanvasView.setBitmap(resized_bitmap);
-            buf.close();
-            input.close();
+            //myCanvasView.setBitmap(bitmap);
+            //buf.close();
+            //input.close();
 
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -104,6 +118,37 @@ public class PhotoActivity extends AppCompatActivity  {
 
     }
 
+    //Adds a listener to the redo button
+    public void addRedoListener(){
+        this.redoBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                myCanvasView.onClickRedo();
+            }
+        });
+
+    }
+    //Adds a listener to the backBtn button
+    public void addZoomListener(){
+        this.zoomBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(myCanvasView.zoomStatus==false){
+                    myCanvasView.setZoomStatus(true);
+                    zoomBtn.setBackgroundResource(R.color.selectedBlue);
+                    //zoomBtn.setPressed(true);
+                }
+                else{
+                    myCanvasView.setZoomStatus(false);
+                    zoomBtn.setBackgroundResource(R.color.grey);
+                    //zoomBtn.setPressed(false);
+                }
+
+            }
+        });
+
+    }
+
 
     //Adds a listener to the saveBtn
     public void addSaveListener(){
@@ -114,23 +159,14 @@ public class PhotoActivity extends AppCompatActivity  {
                 myCanvasView.setDrawingCacheEnabled(true);
                 myCanvasView.setDrawingCacheQuality(myCanvasView.DRAWING_CACHE_QUALITY_HIGH);
                 Bitmap bitmap = myCanvasView.getDrawingCache();
-                //Transform bitmap to inputstream
-                //ByteArrayOutputStream bos = new ByteArrayOutputStream();
-
-                //byte[] bitmapdata = bos.toByteArray();
-                //ByteArrayInputStream bs = new ByteArrayInputStream(bitmapdata);
                 FileOutputStream outputStream;
                 try {
-                    //String edited_image_name = "edited_"+name;
-                    //File directory = v.getContext().getDir("edited", MODE_PRIVATE);
+
                     File directory = ListImages.createFolder("Shrimps-images");
                     File file = new File(directory, name);
                     outputStream = new FileOutputStream(file);
                     bitmap.compress(Bitmap.CompressFormat.JPEG, 100 , outputStream);
                     outputStream.close();
-                    //boolean changes_directory = ftp.changeWorkingDirectory("edited");
-                    //boolean was_saved= ftp.storeFile(edited_image_name,bs);
-                    //bs.close();
                     Toast.makeText(v.getContext(), "Guardado", Toast.LENGTH_SHORT).show();
 
                 } catch (IOException e) {
@@ -142,7 +178,15 @@ public class PhotoActivity extends AppCompatActivity  {
         });
     }
 
+    private void initColorList(){
+        this.colorList = new ArrayList<>();
+        this.colorList.add(new ColorSpinnerElement(Constants.color0, "1"));
+        this.colorList.add(new ColorSpinnerElement(Constants.color1, "2"));
+        this.colorList.add(new ColorSpinnerElement(Constants.color2, "3"));
+        this.colorList.add(new ColorSpinnerElement(Constants.color3, "4"));
+        this.colorList.add(new ColorSpinnerElement(Constants.color4, "5"));
 
+    }
 
 
 }

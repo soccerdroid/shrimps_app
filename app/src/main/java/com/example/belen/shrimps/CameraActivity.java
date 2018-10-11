@@ -175,7 +175,7 @@ public class CameraActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             case R.id.action_take_photo:
                 // User chose the "Settings" item, show the app settings UI...
-                if(MainActivity.ftp!=null && MainActivity.ftp.isConnected()) {
+                if(MainActivity.ftp.isConnected() && MainActivity.ftp!=null) {
                     getWindow().getDecorView().getRootView().post(new Runnable() {
                         @Override
                         public void run() {
@@ -187,13 +187,14 @@ public class CameraActivity extends AppCompatActivity {
                         Util util = new Util();
                         String params = util.getCameraParameters(getWindow().getDecorView().getRootView().getContext());
                         SocketConnection socket = null;
+                        //socket connection to take photo
                         socket = new SocketConnection();
-                        String photo_name = socket.takePhotoWithParams(params); // was not before --- SEND CAMERA PARAMETERS HERE
+                        String photo_name = socket.takePhotoWithParams(params); // --- SEND CAMERA PARAMETERS HERE
                         socket.closeConnection();
-                        Intent intent = new Intent(getApplicationContext(), PhotoViewActivity.class); // was not before
-                        intent.putExtra("photo_name",photo_name ); // was not before
+                        Intent intent = new Intent(getApplicationContext(), PhotoViewActivity.class);
+                        intent.putExtra("photo_name",photo_name );
                         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                        getApplicationContext().startActivity(intent); // was not before
+                        getApplicationContext().startActivity(intent);
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
