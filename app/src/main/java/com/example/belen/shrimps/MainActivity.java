@@ -12,6 +12,7 @@ import android.os.AsyncTask;
 import android.os.StrictMode;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.View;
 import android.content.Intent;
@@ -42,6 +43,8 @@ public class MainActivity extends Activity {
     static boolean status;
     static TextView status_tv;
     LinearLayout pBarContainer;
+    private final String DISABLE_BTN = "disable_btn";
+    private final String ENABLE_BTN = "enable_btn";
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -148,9 +151,13 @@ public class MainActivity extends Activity {
             else {
                 CharSequence text = "No está conectado a la red de la raspberry";
                 this.ftp=null;
+                status_tv.setTextColor(getResources().getColor(R.color.opaque_orange));
+                status_tv.setText("Desconectado");
+                changeButtonsStatus(DISABLE_BTN);
                 int duration = Toast.LENGTH_SHORT;
                 Toast toast = Toast.makeText(this.getApplicationContext(), text, duration);
                 toast.show();
+
             }
         }
         else {
@@ -250,6 +257,7 @@ public class MainActivity extends Activity {
                 ftp.disconnect();
                 status_tv.setTextColor(getResources().getColor(R.color.opaque_orange));
                 status_tv.setText("Desconectado");
+                changeButtonsStatus(DISABLE_BTN); //puts in grey buttons in menu
                 Log.d("REPLY_ERROR", "FTP server refused connection.");
 
             }
@@ -264,6 +272,7 @@ public class MainActivity extends Activity {
                     //Toast.makeText(getWindow().getDecorView().getRootView().getContext(), "Conectado", Toast.LENGTH_SHORT).show();
                     status_tv.setTextColor(getResources().getColor(R.color.connectedGreen));
                     status_tv.setText("Conectado");
+                    changeButtonsStatus(ENABLE_BTN);
                 }
             });
         }
@@ -272,6 +281,8 @@ public class MainActivity extends Activity {
             e.printStackTrace();
             status_tv.setTextColor(getResources().getColor(R.color.opaque_orange));
             status_tv.setText("Desconectado");
+            changeButtonsStatus(DISABLE_BTN);
+
         }
 
     }
@@ -281,6 +292,42 @@ public class MainActivity extends Activity {
         super.onRestoreInstanceState(savedInstanceState);
     }
 
+    public void changeButtonsStatus(String statusOrder){
+        boolean status = false;
+        int disable_color = getResources().getColor(R.color.grey);
+        if(statusOrder.equals(ENABLE_BTN)){
+
+             status = true;
+            //take photo button
+            this.takephoto_button.setEnabled(status);
+            this.takephoto_button.setBackgroundDrawable(ContextCompat.getDrawable((Activity)this,R.drawable.rounded_btn));
+            //shutdown button
+            this.shutdown_button.setEnabled(status);
+            this.shutdown_button.setBackgroundDrawable(ContextCompat.getDrawable((Activity)this,R.drawable.turnoff_rasp_btn));
+            //restart button
+            this.restart_button.setEnabled(status);
+            this.restart_button.setBackgroundDrawable(ContextCompat.getDrawable((Activity)this,R.drawable.restart_rasp_btn));
+            //list images button
+            this.button.setEnabled(status);
+            this.button.setBackgroundDrawable(ContextCompat.getDrawable((Activity)this,R.drawable.rounded_btn));
+            return;
+        } else{
+            //take photo button
+            this.takephoto_button.setEnabled(status);
+            this.takephoto_button.setBackgroundColor(disable_color);
+            //shutdown buttona
+            this.shutdown_button.setEnabled(status);
+            this.shutdown_button.setBackgroundColor(disable_color);
+            //restart button
+            this.restart_button.setEnabled(status);
+            this.restart_button.setBackgroundColor(disable_color);
+            //list images button
+            this.button.setEnabled(status);
+            this.button.setBackgroundColor(disable_color);
+            return;
+        }
+
+    }
 
 
 

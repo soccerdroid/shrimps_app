@@ -97,28 +97,33 @@ public class SocketConnection {
 
     public String readSocket() {
         // read text from the socket
-        try {
+        try
+        {
 
             // read text from the socket
             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
             StringBuilder sb = new StringBuilder();
             String str;
-            int character;
-            while ((character = bufferedReader.read()) != -1) {
-                sb.append(Integer.toString(character));
+            while ((str = bufferedReader.readLine()) != null)
+            {
+                sb.append(str + "\n");
+                System.out.println(str);
             }
 
             // close the reader, and return the results as a String
             bufferedReader.close();
             System.out.println(sb.toString());
             this.closeConnection();
+            System.out.println("Done!");
             return sb.toString();// was not before
         }
-        catch (IOException e) {
+        catch (IOException e)
+        {
             e.printStackTrace();
-            return null;// was not before
 
         }
+        return null;// was not before
+
     }
 }
 

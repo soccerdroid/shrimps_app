@@ -1,6 +1,7 @@
 package com.example.belen.shrimps;
 
 import android.content.Intent;
+import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
@@ -95,7 +96,7 @@ public class CameraActivity extends AppCompatActivity {
 
             @Override
             public void afterTextChanged(Editable s) {
-                changeSaveBtnStatus(ENABLE_BTN);
+                //changeSaveBtnStatus(ENABLE_BTN);
             }
         });
     }
@@ -165,6 +166,16 @@ public class CameraActivity extends AppCompatActivity {
             Util.storeConfigValue(getApplicationContext(), Constants.WHITE_BALANCE_STORED_KEY, whiteBalance);
             Util.storeConfigValue(getApplicationContext(), Constants.EXPOSURE_STORED_KEY, exposure);
             changeSaveBtnStatus(DISABLE_BTN);
+
+            final Handler handler = new Handler();
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    // Do something after 5s = 5000ms
+                    changeSaveBtnStatus(ENABLE_BTN);
+                }
+            }, 300);
+
         } catch (Exception e){
 
         }
@@ -191,6 +202,7 @@ public class CameraActivity extends AppCompatActivity {
                         socket = new SocketConnection();
                         String photo_name = socket.takePhotoWithParams(params); // --- SEND CAMERA PARAMETERS HERE
                         socket.closeConnection();
+                        Toast.makeText(getApplicationContext(), photo_name, Toast.LENGTH_SHORT).show();
                         Intent intent = new Intent(getApplicationContext(), PhotoViewActivity.class);
                         intent.putExtra("photo_name",photo_name );
                         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);

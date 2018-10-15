@@ -1,5 +1,9 @@
 package com.example.belen.shrimps;
 import android.annotation.SuppressLint;
+import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -23,6 +27,8 @@ public class PhotoViewActivity extends AppCompatActivity {
     //Button backBtn;
     public static FTPClient ftp;
     ImageView photo_iv;
+    Button erase_btn;
+    Context ctx;
     @SuppressLint("ClickableViewAccessibility")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,8 +41,11 @@ public class PhotoViewActivity extends AppCompatActivity {
         photo_name = (String) b.get("photo_name");
         //backBtn = findViewById(R.id.back_btn);
         photo_iv = findViewById(R.id.photo_iv);
+        ctx = this;
         //addListenerOnButton();
         Bitmap bitmap = null;
+        erase_btn = findViewById(R.id.borrar_btn);
+        addEraseButtonListener();
 
 
         try {
@@ -87,6 +96,46 @@ public class PhotoViewActivity extends AppCompatActivity {
 
         Bitmap resized = Bitmap.createBitmap(bm, 0, 0, width, height, matrix, false);
         return resized;
+    }
+
+    void addEraseButtonListener(){
+        erase_btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(v.getContext());
+                alertDialogBuilder.setMessage("Se procederá a borrar la imagen en el servidor");
+                alertDialogBuilder.setPositiveButton("Seguir",
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface arg0, int arg1) {
+                                    InputStream input = null;
+
+                                        try {
+                                            MainActivity.ftp.deleteFile(photo_name);
+                                            //connectAndFillList();
+
+                                        } catch (IOException e) {
+                                            e.printStackTrace();
+                                            Toast.makeText(ctx, "No se pudo eliminar la imagen"+photo_name, Toast.LENGTH_SHORT).show();
+                                        }
+                                        finish();
+
+                            }
+                        });
+
+                alertDialogBuilder.setNegativeButton("Cancelar",new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                    }
+                });
+
+                AlertDialog alertDialog = alertDialogBuilder.create();
+                alertDialog.show();
+
+            }
+        });
+
     }
 }
 

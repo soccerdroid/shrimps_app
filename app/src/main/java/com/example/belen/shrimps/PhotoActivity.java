@@ -32,6 +32,7 @@ import java.util.Arrays;
 public class PhotoActivity extends AppCompatActivity  {
 
     Toast toast;
+    static int new_width, new_height;
     public static FTPClient ftp;
     TextView thumbnail_name;
     ImageButton saveBtn,undoBtn, zoomBtn, redoBtn;
@@ -83,7 +84,9 @@ public class PhotoActivity extends AppCompatActivity  {
             bitmap = BitmapFactory.decodeFile(myDir+"/"+name);
             DisplayMetrics displayMetrics = new DisplayMetrics();
             getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
-            int new_width = displayMetrics.widthPixels;
+            new_width = displayMetrics.widthPixels;
+            new_height = displayMetrics.heightPixels;
+
             Bitmap resized_bitmap = fillWidthScreen(new_width,480,640,480,bitmap); //was not before
             myCanvasView.setBitmap(resized_bitmap);
             //myCanvasView.setBitmap(bitmap);
