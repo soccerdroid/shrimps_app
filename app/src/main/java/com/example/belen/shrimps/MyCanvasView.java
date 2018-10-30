@@ -1,16 +1,21 @@
 package com.example.belen.shrimps;
 
+import java.security.DigestInputStream;
 import java.util.ArrayList;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.graphics.PointF;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
+import android.graphics.Rect;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
+import android.util.FloatMath;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
@@ -26,54 +31,35 @@ public class MyCanvasView extends View implements OnTouchListener {
     private ArrayList<FingerPath> paths = new ArrayList<>();
     private ArrayList<FingerPath> undonePaths = new ArrayList<>();
     public Bitmap im; //canvasBitmap
-    public Bitmap backupBitmap;
     public float mX,mY;
-    private float mLastTouchX;
-    private float mLastTouchY;
-    //for zooming
-    private int mActivePointerId = INVALID_POINTER_ID;
-    private ScaleGestureDetector mScaleDetector;
     private float mScaleFactor = 1.f;
-    private float mScaleX,mScaleY;
-    private float mPosX;
-    private float mPosY;
     boolean zoomStatus;
 
 
     //These two constants specify the minimum and maximum zoom
     private static float MIN_ZOOM = 1f;
     private static float MAX_ZOOM = 5f;
-    private boolean dragged;
-    private ScaleGestureDetector detector;
 
     //These constants specify the mode that we're in
-    private static int NONE = 0;
     private static int DRAG = 1;
-    private static int ZOOM = 2;
-    private int displayWidth = PhotoActivity.new_width;
-    private int displayHeight = PhotoActivity.new_height;
-    private int mode;
+    ScaleGestureDetector detector, mScaleDetector;
+    //Zoom & pan touch event
+    int y_old=0,y_new=0;int zoomMode=0;
+    float pinch_dist_old=0,pinch_dist_new=0;
+    int zoomControllerScale=1;//new and old pinch distance to determine Zoom scale
+    // These matrices will be used to move and zoom image
+    Matrix matrix, savedMatrix;
 
-    //These two variables keep track of the X and Y coordinate of the finger when it first
-    //touches the screen
-    private float startX = 0f;
-    private float startY = 0f;
+    // Remember some things for zooming
+    PointF start = new PointF();
+    PointF mid = new PointF();
+    float oldDist = 1f;
 
-    //These two variables keep track of the amount we need to translate the canvas along the X
-    //and the Y coordinate
-    private float translateX = 0f;
-    private float translateY = 0f;
-
-    //These two variables keep track of the amount we translated the X and Y coordinates, the last time we
-    //panned.
-    private float previousTranslateX = 0f;
-    private float previousTranslateY = 0f;
-
-
-
-    //private ScaleGestureDetector scaleDetector; //not before
-    //private float scaleFactor = 1.f; //
-
+    // We can be in one of these 3 states
+    static final int NONE = 0;
+    static final int PAN = 1;
+    static final int ZOOM = 2;
+    int mode = NONE;
 
     public MyCanvasView(Context context, AttributeSet attrs)
     {
@@ -83,6 +69,8 @@ public class MyCanvasView extends View implements OnTouchListener {
         this.setOnTouchListener(this);
         setupDrawing();
         mCanvas = new Canvas();
+        this.matrix = new Matrix();
+        this.savedMatrix = new Matrix();
         //for zooming
         //mScaleDetector = new ScaleGestureDetector(context, new ScaleListener());
         detector = new ScaleGestureDetector(context, new ScaleListener());
@@ -99,6 +87,8 @@ public class MyCanvasView extends View implements OnTouchListener {
         setupDrawing();
         mCanvas = new Canvas();
         this.im = bitmap;
+        this.matrix = new Matrix();
+        this.savedMatrix = new Matrix();
         //for zoming
         mScaleDetector = new ScaleGestureDetector(context, new ScaleListener());
         this.zoomStatus = false;
@@ -128,53 +118,17 @@ public class MyCanvasView extends View implements OnTouchListener {
 
     @Override
         protected void onDraw(Canvas canvas) {
-            //super.onDraw(canvas);
-            //canvas.scale(scaleFactor, scaleFactor);
-
-            super.onDraw(canvas);
-
-            canvas.save();
-
-            //We're going to scale the X and Y coordinates by the same amount
-            canvas.scale(mScaleFactor, mScaleFactor);
-
-            //If translateX times -1 is lesser than zero, let's set it to zero. This takes care of the left bound
-            if((translateX * -1) < 0) {
-                translateX = 0;
-            }
-
-            //This is where we take care of the right bound. We compare translateX times -1 to (scaleFactor - 1) * displayWidth.
-            //If translateX is greater than that value, then we know that we've gone over the bound. So we set the value of
-            //translateX to (1 - scaleFactor) times the display width. Notice that the terms are interchanged; it's the same
-            //as doing -1 * (scaleFactor - 1) * displayWidth
-            else if((translateX * -1) > (mScaleFactor - 1) * displayWidth) {
-                translateX = (1 - mScaleFactor) * displayWidth;
-            }
-
-            if(translateY * -1 < 0) {
-                translateY = 0;
-            }
-
-            //We do the exact same thing for the bottom bound, except in this case we use the height of the display
-            else if((translateY * -1) > (mScaleFactor - 1) * displayHeight) {
-                translateY = (1 - mScaleFactor) * displayHeight;
-            }
-
-            //We need to divide by the scale factor here, otherwise we end up with excessive panning based on our zoom level
-            //because the translation amount also gets scaled according to how much we've zoomed into the canvas.
-            canvas.translate(translateX / mScaleFactor, translateY / mScaleFactor);
-
+        canvas.save();
         if(this.im!= null ){
-            //canvas.translate(mPosX, mPosY);
-            System.out.println("POSICIONES DE ESCALA "+ mPosX+" "+mPosY);
-            //canvas.scale(mScaleFactor, mScaleFactor);
-            canvas.drawBitmap(this.im, 0, 0, canvasPaint);
+            canvas.drawBitmap(this.im, matrix, mPaint);
+            canvas.concat(matrix);
             //canvas.drawPath(mPath,mPaint);
             for (FingerPath p: paths){
                 mPaint.setColor(p.color);
-                mPaint.setStrokeWidth(p.strokeWidth);
+                mPaint.setStrokeWidth(p.strokeWidth/mScaleFactor);
                 canvas.drawPath(p.path,mPaint);
             }
+
         }
         canvas.restore();
 
@@ -187,6 +141,7 @@ public class MyCanvasView extends View implements OnTouchListener {
     private void touch_start(float x, float y) {
         //mPath.reset(); //was before
         mPath = new Path();
+        mPath.transform(this.matrix);
         FingerPath fp = new FingerPath(mPaint.getColor(),6, mPath);
         paths.add(fp);
 
@@ -212,206 +167,105 @@ public class MyCanvasView extends View implements OnTouchListener {
 
     }
 
-    @Override
-    public boolean onTouch(View arg0, MotionEvent event) {
-        if(!zoomStatus){
 
-                float x = (event.getX()-translateX)/mScaleFactor;
-                float y = (event.getY()-translateY)/mScaleFactor;
-                //float x0=x-mScaleX;
-                //float y0=y-mScaleY;
-                //x0=x0*mScaleFactor;
-                //y0=y0*mScaleFactor;
-                //x0+=mScaleX;
-                //y0+=mScaleY;
-                //System.out.println("Pixel coordinates "+ x0+" "+y0);
-                System.out.println("touch co-ordinates "+ x+" "+y);
-                System.out.println("pivot points "+ mScaleX+" "+mScaleY);
-                System.out.println("Scalefactor "+ Float.toString(mScaleFactor));
-                switch (event.getAction()) {
-                    case MotionEvent.ACTION_DOWN:
-                        touch_start(x, y);
-                        break;
-                    case MotionEvent.ACTION_MOVE:
-                        touch_move(x, y);
-                        break;
-                    case MotionEvent.ACTION_UP:
-                        touch_up();
-                        break;
-                    default:
-                        return false;
-                }
-                invalidate();
-                return true;
+    public boolean onTouch(View arg0, MotionEvent event){
 
-        }
-        else {
-            switch (event.getAction() & MotionEvent.ACTION_MASK) {
-
-                case MotionEvent.ACTION_DOWN:
-                    mode = DRAG;
-
-                    //We assign the current X and Y coordinate of the finger to startX and startY minus the previously translated
-                    //amount for each coordinates This works even when we are translating the first time because the initial
-                    //values for these two variables is zero.
-                    startX = event.getX() - previousTranslateX;
-                    startY = event.getY() - previousTranslateY;
-                    mActivePointerId = event.getPointerId(0);
-                    break;
-
-                case MotionEvent.ACTION_MOVE:
-                    translateX = event.getX() - startX;
-                    translateY = event.getY() - startY;
-
-                    //We cannot use startX and startY directly because we have adjusted their values using the previous translation values.
-                    //This is why we need to add those values to startX and startY so that we can get the actual coordinates of the finger.
-                    double distance = Math.sqrt(Math.pow(event.getX() - (startX + previousTranslateX), 2) +
-                            Math.pow(event.getY() - (startY + previousTranslateY), 2)
-                    );
-
-                    if(distance > 0) {
-                        dragged = true;
-                    }
-                    break;
-
-                case MotionEvent.ACTION_POINTER_DOWN:
-                    mode = ZOOM;
-                    break;
-
-                case MotionEvent.ACTION_UP:
-                    mode = NONE;
-                    dragged = false;
-
-                    //All fingers went up, so let's save the value of translateX and translateY into previousTranslateX and
-                    //previousTranslate
-                    previousTranslateX = translateX;
-                    previousTranslateY = translateY;
-                    break;
-
-                case MotionEvent.ACTION_POINTER_UP:
-                    mode = DRAG;
-
-                    //This is not strictly necessary; we save the value of translateX and translateY into previousTranslateX
-                    //and previousTranslateY when the second finger goes up
-                    previousTranslateX = translateX;
-                    previousTranslateY = translateY;
-                    break;
-            }
-        }
-
-        detector.onTouchEvent(event);
-
-        //We redraw the canvas only in the following cases:
-        //
-        // o The mode is ZOOM
-        //        OR
-        // o The mode is DRAG and the scale factor is not equal to 1 (meaning we have zoomed) and dragged is
-        //   set to true (meaning the finger has actually moved)
-        if ((mode == DRAG && mScaleFactor != 1f && dragged) || mode == ZOOM) {
-            invalidate();
-        }
-
-        return true;
-        /*mScaleDetector.onTouchEvent(event);
         if(this.zoomStatus){
-            final int action = event.getAction();
-            switch (action & MotionEvent.ACTION_MASK) {
-                case MotionEvent.ACTION_DOWN: {
-                    final float x = event.getX();
-                    final float y = event.getY();
-
-                    mLastTouchX = x;
-                    mLastTouchY = y;
-                    mActivePointerId = event.getPointerId(0);
-                    break;
-                }
-
-                case MotionEvent.ACTION_MOVE: {
-                    final int pointerIndex = event.findPointerIndex(mActivePointerId);
-                    final float x = event.getX(pointerIndex);
-                    final float y = event.getY(pointerIndex);
-
-                    // Only move if the ScaleGestureDetector isn't processing a gesture.
-                    if (!mScaleDetector.isInProgress()) {
-                        final float dx = x - mLastTouchX;
-                        final float dy = y - mLastTouchY;
-
-                        mPosX += dx;
-                        mPosY += dy;
-
-                        invalidate();
-                    }
-
-                    mLastTouchX = x;
-                    mLastTouchY = y;
-
-                    break;
-                }
-
-                case MotionEvent.ACTION_UP: {
-                    mActivePointerId = INVALID_POINTER_ID;
-                    break;
-                }
-
-                case MotionEvent.ACTION_CANCEL: {
-                    mActivePointerId = INVALID_POINTER_ID;
-                    break;
-                }
-
-                case MotionEvent.ACTION_POINTER_UP: {
-                    final int pointerIndex = (event.getAction() & MotionEvent.ACTION_POINTER_INDEX_MASK)
-                            >> MotionEvent.ACTION_POINTER_INDEX_SHIFT;
-                    final int pointerId = event.getPointerId(pointerIndex);
-                    if (pointerId == mActivePointerId) {
-                        // This was our active pointer going up. Choose a new
-                        // active pointer and adjust accordingly.
-                        final int newPointerIndex = pointerIndex == 0 ? 1 : 0;
-                        mLastTouchX = event.getX(newPointerIndex);
-                        mLastTouchY = event.getY(newPointerIndex);
-                        mActivePointerId = event.getPointerId(newPointerIndex);
-                    }
-                    break;
-                }
-            }
-
+            PanZoomWithTouch(event);
+            invalidate();//necessary to repaint the canvas
             return true;
-
         }
-        else {
+        else{
             float x = event.getX();
-            float y = event.getY();
-            //float x0=x-mScaleX;
-            //float y0=y-mScaleY;
-            //x0=x0*mScaleFactor;
-            //y0=y0*mScaleFactor;
-            //x0+=mScaleX;
-            //y0+=mScaleY;
-            //System.out.println("Pixel coordinates "+ x0+" "+y0);
-            System.out.println("touch co-ordinates "+ x+" "+y);
-            System.out.println("pivot points "+ mScaleX+" "+mScaleY);
-            System.out.println("Scalefactor "+ Float.toString(mScaleFactor));
-            switch (event.getAction()) {
-                case MotionEvent.ACTION_DOWN:
-                    touch_start(x, y);
-                    break;
-                case MotionEvent.ACTION_MOVE:
-                    touch_move(x, y);
-                    break;
-                case MotionEvent.ACTION_UP:
-                    touch_up();
-                    break;
-                default:
-                    return false;
-            }
-            invalidate();
-            return true;
+        float y = event.getY();
+        switch (event.getAction()) {
+            case MotionEvent.ACTION_DOWN:
+                touch_start(x, y);
+                break;
+            case MotionEvent.ACTION_MOVE:
+                touch_move(x, y);
+                break;
+            case MotionEvent.ACTION_UP:
+                touch_up();
+                break;
+            default:
+                return false;
+
         }
-        */
+        invalidate();
+        return true;
+
+        }
+
+
+
     }
+
+    void PanZoomWithTouch(MotionEvent event){
+        switch (event.getAction() & MotionEvent.ACTION_MASK) {
+            case MotionEvent.ACTION_DOWN://when first finger down, get first point
+                savedMatrix.set(matrix);
+                start.set(event.getX(), event.getY());
+                System.out.println("mode=PAN");
+                mode = PAN;
+                break;
+            case MotionEvent.ACTION_POINTER_DOWN://when 2nd finger down, get second point
+                oldDist = spacing(event);
+                System.out.println("oldDist=" + oldDist);
+                if (oldDist > 10f) {
+                    savedMatrix.set(matrix);
+                    midPoint(mid, event); //then get the mide point as centre for zoom
+                    mode = ZOOM;
+                    System.out.println("mode=ZOOM");
+                }
+                break;
+            case MotionEvent.ACTION_UP:
+            case MotionEvent.ACTION_POINTER_UP:       //when both fingers are released, do nothing
+                mode = NONE;
+                System.out.println("mode=NONE");
+                break;
+            case MotionEvent.ACTION_MOVE:     //when fingers are dragged, transform matrix for panning
+                if (mode == PAN) {
+                    // ...
+                    matrix.set(savedMatrix);
+                    matrix.postTranslate(event.getX() - start.x,
+                            event.getY() - start.y);
+                    System.out.println("Mapping rect");
+                    //start.set(event.getX(), event.getY());
+                }
+                else if (mode == ZOOM) { //if pinch_zoom, calculate distance ratio for zoom
+                    float newDist = spacing(event);
+                    System.out.println("newDist=" + newDist);
+                    if (newDist > 10f) {
+                        matrix.set(savedMatrix);
+                        float scale = newDist / oldDist;
+                        matrix.postScale(scale, scale, mid.x, mid.y);
+                    }
+                }
+                break;
+        }
+    }
+
+    /** Determine the space between the first two fingers */
+    private float spacing(MotionEvent event) {
+        // ...
+        float x = event.getX(0) - event.getX(1);
+        float y = event.getY(0) - event.getY(1);
+        return (float)Math.sqrt(x * x + y * y);
+    }
+
+    /** Calculate the mid point of the first two fingers */
+    private void midPoint(PointF point, MotionEvent event) {
+        // ...
+        float x = event.getX(0) + event.getX(1);
+        float y = event.getY(0) + event.getY(1);
+        point.set(x / 2, y / 2);
+    }
+
+
 
     public void onClickUndo(){
         if (paths.size() > 0){
-            System.out.println("undooooo");
             // End current path
             // Cancel the last one and redraw
             undonePaths.add(paths.get(paths.size() - 1));
@@ -446,19 +300,6 @@ public class MyCanvasView extends View implements OnTouchListener {
 
     }
 
-    /*
-    private class ScaleListener extends ScaleGestureDetector.SimpleOnScaleGestureListener {
-        @Override
-        public boolean onScale(ScaleGestureDetector detector) {
-            mScaleFactor *= detector.getScaleFactor();
-            mScaleX=detector.getFocusX();
-            mScaleY=detector.getFocusY();
-            // Don't let the object get too small or too large.
-            mScaleFactor = Math.max(1.f, Math.min(mScaleFactor, 5.0f));
-            invalidate();
-            return true;
-        }
-    }*/
 
     public void setZoomStatus(boolean status){
         this.zoomStatus = status;
@@ -469,9 +310,11 @@ public class MyCanvasView extends View implements OnTouchListener {
         public boolean onScale(ScaleGestureDetector detector) {
             mScaleFactor *= detector.getScaleFactor();
             mScaleFactor = Math.max(MIN_ZOOM, Math.min(mScaleFactor, MAX_ZOOM));
+            invalidate();
             return true;
         }
     }
+
 
 
 

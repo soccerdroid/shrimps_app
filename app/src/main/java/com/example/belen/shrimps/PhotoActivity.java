@@ -89,9 +89,6 @@ public class PhotoActivity extends AppCompatActivity  {
 
             Bitmap resized_bitmap = fillWidthScreen(new_width,480,640,480,bitmap); //was not before
             myCanvasView.setBitmap(resized_bitmap);
-            //myCanvasView.setBitmap(bitmap);
-            //buf.close();
-            //input.close();
 
         } catch (Exception e) {
             e.printStackTrace();
