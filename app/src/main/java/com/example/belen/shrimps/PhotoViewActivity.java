@@ -4,9 +4,11 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Camera;
 import android.graphics.Matrix;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -27,8 +29,9 @@ public class PhotoViewActivity extends AppCompatActivity {
     //Button backBtn;
     public static FTPClient ftp;
     ImageView photo_iv;
-    Button erase_btn;
+    Button erase_btn, tomar_btn;
     Context ctx;
+    SocketConnection socket;
     @SuppressLint("ClickableViewAccessibility")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,7 +48,9 @@ public class PhotoViewActivity extends AppCompatActivity {
         //addListenerOnButton();
         Bitmap bitmap = null;
         erase_btn = findViewById(R.id.borrar_btn);
+        tomar_btn = findViewById(R.id.tomar_btn);
         addEraseButtonListener();
+        addTakePhotoAgainListener();
 
 
         try {
@@ -76,16 +81,30 @@ public class PhotoViewActivity extends AppCompatActivity {
         }
     }
 
-    //Adds a listener to the backBtn button
-    /*public void addListenerOnButton(){
-        this.backBtn.setOnClickListener(new View.OnClickListener() {
+    //Función para tomar foto de nuevo
+    private void addTakePhotoAgainListener() {
+
+        tomar_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                finish();
+                try {
+                    socket = new SocketConnection();
+                    String photo_name = socket.takePhotoWithParams(CameraActivity.params); // --- SEND CAMERA PARAMETERS HERE
+                    socket.closeConnection();
+                    Toast.makeText(getApplicationContext(), photo_name, Toast.LENGTH_SHORT).show();
+                    Intent intent = new Intent(getApplicationContext(), PhotoViewActivity.class);
+                    intent.putExtra("photo_name",photo_name );
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    getApplicationContext().startActivity(intent);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    Toast.makeText(getApplicationContext(), "No se pudo tomar la imagen", Toast.LENGTH_SHORT).show();
+                }
+
             }
         });
+    }
 
-    }*/
 
     public Bitmap fillWidthScreen(int newWidth, int newHeight, int width, int height, Bitmap bm){
         float scaleWidth = ((float) newWidth) / width;

@@ -28,6 +28,7 @@ public class CameraActivity extends AppCompatActivity {
     private EditText whiteBalanceEt;
     private EditText exposureEt;
     private Button saveConfigBtn;
+    static String params;
 
     private final int MAX_BRIGHTNESS = 64;
     private final int MIN_BRIGHTNESS = -64;
@@ -173,11 +174,14 @@ public class CameraActivity extends AppCompatActivity {
                 public void run() {
                     // Do something after 5s = 5000ms
                     changeSaveBtnStatus(ENABLE_BTN);
+                    Toast toast = Toast.makeText(getWindow().getDecorView().getRootView().getContext(), "Parámetros guardados", Toast.LENGTH_SHORT);
+                    toast.show();
                 }
             }, 300);
 
         } catch (Exception e){
-
+            Toast toast = Toast.makeText(getWindow().getDecorView().getRootView().getContext(), "Error al guardar los parámetros", Toast.LENGTH_SHORT);
+            toast.show();
         }
     }
 
@@ -196,11 +200,11 @@ public class CameraActivity extends AppCompatActivity {
                     });
                     try {
                         Util util = new Util();
-                        String params = util.getCameraParameters(getWindow().getDecorView().getRootView().getContext());
+                        this.params = util.getCameraParameters(getWindow().getDecorView().getRootView().getContext());
                         SocketConnection socket = null;
                         //socket connection to take photo
                         socket = new SocketConnection();
-                        String photo_name = socket.takePhotoWithParams(params); // --- SEND CAMERA PARAMETERS HERE
+                        String photo_name = socket.takePhotoWithParams(this.params); // --- SEND CAMERA PARAMETERS HERE
                         socket.closeConnection();
                         Toast.makeText(getApplicationContext(), photo_name, Toast.LENGTH_SHORT).show();
                         Intent intent = new Intent(getApplicationContext(), PhotoViewActivity.class);

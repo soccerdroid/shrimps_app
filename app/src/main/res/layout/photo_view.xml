@@ -13,7 +13,7 @@
         android:layout_height="?attr/actionBarSize"
         android:background="?attr/colorPrimary"
         android:elevation="4dp"
-        app:titleTextColor="@color/dark_turquoise"
+        app:titleTextColor="@color/white"
         app:title="Foto del servidor"
         android:theme="@style/AppTheme">
     </android.support.v7.widget.Toolbar>
@@ -41,6 +41,11 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Borrar" />
+        <Button
+            android:id="@+id/tomar_btn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Tomar de nuevo" />
 
     </LinearLayout>
 </LinearLayout>

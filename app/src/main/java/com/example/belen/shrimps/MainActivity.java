@@ -146,6 +146,10 @@ public class MainActivity extends Activity {
             if(wifi_name.equalsIgnoreCase("\"Pi_AP\"")){
                 if(this.ftp==null || !this.ftp.isConnected()){
                     connectToFTPAsync(this);
+                }else {
+                    status_tv.setTextColor(getResources().getColor(R.color.connectedGreen));
+                    status_tv.setText("Conectado");
+                    changeButtonsStatus(ENABLE_BTN);
                 }
             }
             else {

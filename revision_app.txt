@@ -1,0 +1,7 @@
+desconectar / conectar
+revisar matriz de transformaciones
+revisar parámetros antes de guardarlos (guardarlos en preferencias compartidas para que luego puedan ser accedidos en cualquier momento)
+cambiar color de título de tomar foto
+descartar en vez de borrar
+tomar de nuevo
+

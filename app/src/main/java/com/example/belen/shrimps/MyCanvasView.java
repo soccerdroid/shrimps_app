@@ -1,6 +1,5 @@
 package com.example.belen.shrimps;
 
-import java.security.DigestInputStream;
 import java.util.ArrayList;
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -10,18 +9,13 @@ import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.PointF;
-import android.graphics.PorterDuff;
-import android.graphics.PorterDuffXfermode;
-import android.graphics.Rect;
 import android.util.AttributeSet;
-import android.util.DisplayMetrics;
-import android.util.FloatMath;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.view.View.OnTouchListener;
 
-import static android.view.MotionEvent.INVALID_POINTER_ID;
+
 
 public class MyCanvasView extends View implements OnTouchListener {
 
@@ -31,9 +25,10 @@ public class MyCanvasView extends View implements OnTouchListener {
     private ArrayList<FingerPath> paths = new ArrayList<>();
     private ArrayList<FingerPath> undonePaths = new ArrayList<>();
     public Bitmap im; //canvasBitmap
-    public float mX,mY;
+    public float mX,mY, scale;
     private float mScaleFactor = 1.f;
     boolean zoomStatus;
+    float lastTouchX, lastTouchY;
 
 
     //These two constants specify the minimum and maximum zoom
@@ -107,20 +102,14 @@ public class MyCanvasView extends View implements OnTouchListener {
         canvasPaint = new Paint(Paint.DITHER_FLAG);
     }
 
-    @Override
-    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
-        super.onSizeChanged(w, h, oldw, oldh);
-        if(this.im!=null) {
-            mCanvas = new Canvas(this.im);
-        }
 
-    }
 
     @Override
         protected void onDraw(Canvas canvas) {
         canvas.save();
         if(this.im!= null ){
-            canvas.drawBitmap(this.im, matrix, mPaint);
+
+            canvas.drawBitmap(this.im, matrix, canvasPaint);
             canvas.concat(matrix);
             //canvas.drawPath(mPath,mPaint);
             for (FingerPath p: paths){
@@ -171,25 +160,38 @@ public class MyCanvasView extends View implements OnTouchListener {
     public boolean onTouch(View arg0, MotionEvent event){
 
         if(this.zoomStatus){
+
             PanZoomWithTouch(event);
             invalidate();//necessary to repaint the canvas
             return true;
         }
         else{
-            float x = event.getX();
-        float y = event.getY();
-        switch (event.getAction()) {
-            case MotionEvent.ACTION_DOWN:
-                touch_start(x, y);
-                break;
-            case MotionEvent.ACTION_MOVE:
-                touch_move(x, y);
-                break;
-            case MotionEvent.ACTION_UP:
-                touch_up();
-                break;
-            default:
-                return false;
+            int[] loc = new int[2];
+            //arg0.getLocationOnScreen(loc);
+            float []m = new float[9];
+            matrix.getValues(m);
+            float transX = m[Matrix.MTRANS_X] * -1;
+            float transY = m[Matrix.MTRANS_Y] * -1;
+            float scaleX = m[Matrix.MSCALE_X];
+            float scaleY = m[Matrix.MSCALE_Y];
+            lastTouchX = (int) ((event.getX() + transX) / scaleX);
+            lastTouchY = (int) ((event.getY() + transY) / scaleY);
+            lastTouchX = Math.abs(lastTouchX);
+            lastTouchY = Math.abs(lastTouchY);
+            float x= lastTouchX;
+            float y = lastTouchY;
+            switch (event.getAction()) {
+                case MotionEvent.ACTION_DOWN:
+                    touch_start(x, y);
+                    break;
+                case MotionEvent.ACTION_MOVE:
+                    touch_move(x, y);
+                    break;
+                case MotionEvent.ACTION_UP:
+                    touch_up();
+                    break;
+                default:
+                    return false;
 
         }
         invalidate();
@@ -238,7 +240,7 @@ public class MyCanvasView extends View implements OnTouchListener {
                     System.out.println("newDist=" + newDist);
                     if (newDist > 10f) {
                         matrix.set(savedMatrix);
-                        float scale = newDist / oldDist;
+                        scale = newDist / oldDist;
                         matrix.postScale(scale, scale, mid.x, mid.y);
                     }
                 }
@@ -314,8 +316,6 @@ public class MyCanvasView extends View implements OnTouchListener {
             return true;
         }
     }
-
-
 
 
 
