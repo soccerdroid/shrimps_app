@@ -2,6 +2,7 @@ package com.example.belen.shrimps;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.pm.ActivityInfo;
 
 import android.graphics.Color;
@@ -35,7 +36,7 @@ import java.io.IOException;
 
 public class MainActivity extends Activity {
 
-    Button button, shutdown_button,restart_button, takephoto_button, tagimages_button;
+    Button button, shutdown_button,restart_button, takephoto_button, tagimages_button, connect_button;
     ImageView image;
     int port;
     static String username,password,server;
@@ -60,6 +61,8 @@ public class MainActivity extends Activity {
         //botón para tomar foto
         takephoto_button = (Button) findViewById(R.id.btnTakePhoto);
         tagimages_button = findViewById(R.id.btnTagImages);
+        connect_button = findViewById(R.id.btnConnect);
+        setConnectListener();
         setCameraOpListener();
         setTagImagesListener();
         shutdown_button = (Button) findViewById(R.id.btnTurnoffRasp);
@@ -133,6 +136,47 @@ public class MainActivity extends Activity {
             toast.show();
         }
     }
+    //listener of button "Conectarse", that stablishes ftp conn
+    private void setConnectListener() {
+        this.connect_button.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(connect_button.getText().equals("Conectarse")){
+                    Context ctx = v.getContext().getApplicationContext();
+                    WifiManager wifiMgr = (WifiManager) ctx.getSystemService(Context.WIFI_SERVICE);
+                    WifiInfo wifiInfo = wifiMgr.getConnectionInfo();
+                    if(wifiInfo!=null){
+                        String wifi_name = wifiInfo.getSSID();
+
+                        if(wifi_name.equalsIgnoreCase("\"Pi_AP\"") == false){
+                            CharSequence text = "Primero debe conectarse a la red de la raspberry: Pi_AP";
+                            int duration = Toast.LENGTH_SHORT;
+                            Toast toast = Toast.makeText(ctx, text, duration);
+                            toast.show();
+                        }
+                        else{
+                            connectToFTPAsync(getActivity(v.getContext()));
+                        }
+
+                    }
+                    else {
+                        Toast toast = Toast.makeText(ctx, "No hay red wifi", Toast.LENGTH_SHORT);
+                        toast.show();
+                    }
+                }
+                else{
+                    //desconectarse
+                    try{
+                        ftp.disconnect();
+                    }
+                    catch (Exception e){
+
+                    }
+                }
+
+            }
+        });
+    }
 
     @Override
     public void onResume(){
@@ -161,7 +205,6 @@ public class MainActivity extends Activity {
                 int duration = Toast.LENGTH_SHORT;
                 Toast toast = Toast.makeText(this.getApplicationContext(), text, duration);
                 toast.show();
-
             }
         }
         else {
@@ -227,6 +270,9 @@ public class MainActivity extends Activity {
                         status_tv.setTextColor(getResources().getColor(R.color.darkGrey));
                         status_tv.setText("Estableciendo conexión...");
                         pBarContainer.setVisibility(View.VISIBLE);
+                        connect_button.setBackgroundColor(getResources().getColor(R.color.grey));
+                        connect_button.setTextColor(getResources().getColor(R.color.darkGrey));
+
                     }
                 });
 
@@ -242,7 +288,7 @@ public class MainActivity extends Activity {
     }
 
 
-    public void connectToFTP(Context context){
+    public void connectToFTP(final Context context){
         port = 21;
         server = "192.168.20.1";
         username = "usuario";
@@ -273,10 +319,10 @@ public class MainActivity extends Activity {
             ftp.enterLocalPassiveMode();
             this.runOnUiThread(new Runnable() {
                 public void run() {
-                    //Toast.makeText(getWindow().getDecorView().getRootView().getContext(), "Conectado", Toast.LENGTH_SHORT).show();
                     status_tv.setTextColor(getResources().getColor(R.color.connectedGreen));
                     status_tv.setText("Conectado");
                     changeButtonsStatus(ENABLE_BTN);
+
                 }
             });
         }
@@ -285,7 +331,7 @@ public class MainActivity extends Activity {
             e.printStackTrace();
             status_tv.setTextColor(getResources().getColor(R.color.opaque_orange));
             status_tv.setText("Desconectado");
-            changeButtonsStatus(DISABLE_BTN);
+            changeButtonsStatus(DISABLE_BTN); //disables buttons and enables "Conectarse" button
 
         }
 
@@ -314,6 +360,11 @@ public class MainActivity extends Activity {
             //list images button
             this.button.setEnabled(status);
             this.button.setBackgroundDrawable(ContextCompat.getDrawable((Activity)this,R.drawable.rounded_btn));
+
+            //change state of "Conectarse" button
+            connect_button.setBackgroundDrawable(ContextCompat.getDrawable((Activity)this,R.drawable.rounded_btn));
+            connect_button.setText("Desconectarse");
+            connect_button.setTextColor(getResources().getColor(R.color.black));
             return;
         } else{
             //take photo button
@@ -328,11 +379,23 @@ public class MainActivity extends Activity {
             //list images button
             this.button.setEnabled(status);
             this.button.setBackgroundColor(disable_color);
+
+            connect_button.setText("Conectarse");
+            connect_button.setTextColor(getResources().getColor(R.color.black));
             return;
         }
 
     }
 
+    private Activity getActivity(Context context) {
+        while (context instanceof ContextWrapper) {
+            if (context instanceof Activity) {
+                return (Activity)context;
+            }
+            context = ((ContextWrapper)context).getBaseContext();
+        }
+        return null;
+    }
 
 
 }

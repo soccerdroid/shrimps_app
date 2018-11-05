@@ -28,7 +28,6 @@ public class CameraActivity extends AppCompatActivity {
     private EditText whiteBalanceEt;
     private EditText exposureEt;
     private Button saveConfigBtn;
-    static String params;
 
     private final int MAX_BRIGHTNESS = 64;
     private final int MIN_BRIGHTNESS = -64;
@@ -200,11 +199,11 @@ public class CameraActivity extends AppCompatActivity {
                     });
                     try {
                         Util util = new Util();
-                        this.params = util.getCameraParameters(getWindow().getDecorView().getRootView().getContext());
+                        String params = util.getCameraParameters(getWindow().getDecorView().getRootView().getContext());
                         SocketConnection socket = null;
                         //socket connection to take photo
                         socket = new SocketConnection();
-                        String photo_name = socket.takePhotoWithParams(this.params); // --- SEND CAMERA PARAMETERS HERE
+                        String photo_name = socket.takePhotoWithParams(params); // --- SEND CAMERA PARAMETERS HERE
                         socket.closeConnection();
                         Toast.makeText(getApplicationContext(), photo_name, Toast.LENGTH_SHORT).show();
                         Intent intent = new Intent(getApplicationContext(), PhotoViewActivity.class);

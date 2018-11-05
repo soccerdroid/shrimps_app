@@ -155,7 +155,7 @@ public class PhotoActivity extends AppCompatActivity  {
         this.saveBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(final View v) {
-
+                myCanvasView.reiniciarZoom(); //gets to original position
                 myCanvasView.setDrawingCacheEnabled(true);
                 myCanvasView.setDrawingCacheQuality(myCanvasView.DRAWING_CACHE_QUALITY_HIGH);
                 Bitmap bitmap = myCanvasView.getDrawingCache();

@@ -16,5 +16,6 @@
     <color name="selectedBlue">#a8d9e7</color>
     <color name="gold">#e6b121</color>
     <color name="connectedGreen">#009900</color>
+    <color name="black">#000</color>
 
 </resources>

@@ -18,6 +18,8 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.example.belen.shrimps.Utils.Util;
+
 import org.apache.commons.net.ftp.FTPClient;
 import java.io.BufferedInputStream;
 import java.io.IOException;
@@ -29,7 +31,7 @@ public class PhotoViewActivity extends AppCompatActivity {
     //Button backBtn;
     public static FTPClient ftp;
     ImageView photo_iv;
-    Button erase_btn, tomar_btn;
+    Button erase_btn, tomar_de_nuevo_btn;
     Context ctx;
     SocketConnection socket;
     @SuppressLint("ClickableViewAccessibility")
@@ -48,7 +50,7 @@ public class PhotoViewActivity extends AppCompatActivity {
         //addListenerOnButton();
         Bitmap bitmap = null;
         erase_btn = findViewById(R.id.borrar_btn);
-        tomar_btn = findViewById(R.id.tomar_btn);
+        tomar_de_nuevo_btn = findViewById(R.id.tomar_de_nuevo_btn);
         addEraseButtonListener();
         addTakePhotoAgainListener();
 
@@ -84,12 +86,14 @@ public class PhotoViewActivity extends AppCompatActivity {
     //Función para tomar foto de nuevo
     private void addTakePhotoAgainListener() {
 
-        tomar_btn.setOnClickListener(new View.OnClickListener() {
+        tomar_de_nuevo_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 try {
+                    Util util = new Util();
                     socket = new SocketConnection();
-                    String photo_name = socket.takePhotoWithParams(CameraActivity.params); // --- SEND CAMERA PARAMETERS HERE
+                    String params = util.getCameraParameters(getWindow().getDecorView().getRootView().getContext());
+                    String photo_name = socket.takePhotoWithParams(params); // --- SEND CAMERA PARAMETERS HERE
                     socket.closeConnection();
                     Toast.makeText(getApplicationContext(), photo_name, Toast.LENGTH_SHORT).show();
                     Intent intent = new Intent(getApplicationContext(), PhotoViewActivity.class);

@@ -38,12 +38,8 @@ public class MyCanvasView extends View implements OnTouchListener {
     //These constants specify the mode that we're in
     private static int DRAG = 1;
     ScaleGestureDetector detector, mScaleDetector;
-    //Zoom & pan touch event
-    int y_old=0,y_new=0;int zoomMode=0;
-    float pinch_dist_old=0,pinch_dist_new=0;
-    int zoomControllerScale=1;//new and old pinch distance to determine Zoom scale
     // These matrices will be used to move and zoom image
-    Matrix matrix, savedMatrix;
+    Matrix matrix, savedMatrix, originalMatrix;
 
     // Remember some things for zooming
     PointF start = new PointF();
@@ -152,8 +148,6 @@ public class MyCanvasView extends View implements OnTouchListener {
     private void touch_up() {
         mPath.lineTo(mX, mY);
         // commit the path to our offscreen
-
-
     }
 
 
@@ -233,6 +227,7 @@ public class MyCanvasView extends View implements OnTouchListener {
                     matrix.postTranslate(event.getX() - start.x,
                             event.getY() - start.y);
                     System.out.println("Mapping rect");
+                    System.out.println(event.getX()-start.x);
                     //start.set(event.getX(), event.getY());
                 }
                 else if (mode == ZOOM) { //if pinch_zoom, calculate distance ratio for zoom
@@ -315,6 +310,12 @@ public class MyCanvasView extends View implements OnTouchListener {
             invalidate();
             return true;
         }
+    }
+
+    public void reiniciarZoom() {
+        matrix = new Matrix();
+        mScaleFactor = 1f;
+        invalidate();
     }
 
 

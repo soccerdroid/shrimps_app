@@ -40,9 +40,9 @@
             android:id="@+id/borrar_btn"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Borrar" />
+            android:text="Descartar" />
         <Button
-            android:id="@+id/tomar_btn"
+            android:id="@+id/tomar_de_nuevo_btn"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Tomar de nuevo" />
