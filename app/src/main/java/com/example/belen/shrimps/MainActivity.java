@@ -166,12 +166,18 @@ public class MainActivity extends Activity {
                 }
                 else{
                     //desconectarse
-                    try{
-                        ftp.disconnect();
+                    if(ftp.isConnected()) {
+                        try {
+                            ftp.disconnect();
+                            status_tv.setText("Desconectado");
+                            changeButtonsStatus(DISABLE_BTN);
+                        }
+                        catch(IOException ioe) {
+                            //do nothing
+                        }
                     }
-                    catch (Exception e){
-
-                    }
+                    status_tv.setText("Desconectado");
+                    changeButtonsStatus(DISABLE_BTN);
                 }
 
             }
